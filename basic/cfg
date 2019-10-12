@@ -1,0 +1,28 @@
+{
+    "projects": [
+    {
+        "name": "basic",
+        "type": "static",
+        "dependency": [],
+        "include_path: ["include", "header"],
+        "sources":
+        {
+            "platform regex": ["wildcard", "wildcard"],
+            "common":
+            {
+                "source/*.c": "",
+                "source/*.cpp": ""
+            },
+            "?*x86?*":
+            {
+                "x86/*.asm": "",
+                "x86/*.c": ""
+            },
+            "?*arm?*":
+            {
+                "arm/*.c": ""
+            }
+        }
+    }
+    ]
+}
