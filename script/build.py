@@ -43,7 +43,7 @@ def parse_parameters(ctx):
         (default toolset depends on a platform)",
         default="")  
     parser.add_argument("--verbosity",type=str, help="verbosity level \
-        [info, warning, error, message, silent] (default is %s)" % default_verbosity,
+        [max, info, warning, error, message, silent] (default is %s)" % default_verbosity,
         default=default_verbosity)
     args = parser.parse_args()
     # save actual values

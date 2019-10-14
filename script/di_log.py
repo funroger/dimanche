@@ -13,10 +13,11 @@ if "windows" == di_platform.os_name():
 
 
 class VERBOSITY:
-    INFO = 0
-    WARNING = 1
-    ERROR = 2
-    MESSAGE = 3
+    MAX = 0
+    INFO = 1
+    WARNING = 2
+    ERROR = 3
+    MESSAGE = 4
     SILENT = 1024
 
     DEFAULT = ERROR
@@ -24,7 +25,9 @@ class VERBOSITY:
 
 def string_to_verbosity(string):
     verbosity = VERBOSITY.DEFAULT
-    if "info" == string:
+    if "max" == string:
+        verbosity = VERBOSITY.MAX
+    elif "info" == string:
         verbosity = VERBOSITY.INFO
     elif "warning" == string:
         verbosity = VERBOSITY.WARNING
@@ -39,7 +42,9 @@ def string_to_verbosity(string):
 
 def verbosity_to_string(verbosity):
     string = "UNKNOWN"
-    if VERBOSITY.INFO == verbosity:
+    if VERBOSITY.MAX == verbosity:
+        string = "max"
+    elif VERBOSITY.INFO == verbosity:
         string = "info"
     elif VERBOSITY.WARNING == verbosity:
         string = "warning"
