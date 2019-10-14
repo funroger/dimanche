@@ -71,12 +71,6 @@ class Project:
 
         # find the project
         for project in projects["projects"]:
-            # update variables
-            variables = parse_variables(GLOBAL_VARIABLES, project["variables"])
-
-            # update values
-            update_dict(project, variables, log)
-
             if project_name == project["name"]:
                 self.properties = project
                 break
