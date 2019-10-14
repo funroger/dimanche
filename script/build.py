@@ -62,7 +62,7 @@ def load_configuration(ctx):
 
     config = di_config.load_config(config_file_path, log)
     ctx["config"] = config
-    print(config)
+    log.log(di_log.VERBOSITY.MAX, config)
 
     log.log(di_log.VERBOSITY.MESSAGE, "config file %s loaded" % config_file_name)
 
@@ -89,7 +89,7 @@ def main():
     verbosity = ctx["args"].verbosity
     log = di_log.Log(di_log.string_to_verbosity(verbosity))
     ctx["log"] = log
-    log.log(di_log.VERBOSITY.INFO, str(ctx))
+    log.log(di_log.VERBOSITY.MAX, ctx)
 
     load_configuration(ctx)
 

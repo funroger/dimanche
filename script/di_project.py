@@ -13,7 +13,7 @@ def update(obj, variables: dict, log: di_log.Log = None):
     for key, value in variables.items():
         if obj == key:
             if not None == log:
-                log.log(di_log.VERBOSITY.INFO, "replace %s -> %s" % (key, value))
+                log.log(di_log.VERBOSITY.MAX, "replace %s -> %s" % (key, value))
             return value
     return obj
 
@@ -79,7 +79,8 @@ class Project:
             di_platform.exit_on_error("can't find '%s' project in the file '%s'" % \
                 (project_name, project_file_path), log, __file__)
 
-        log.log(di_log.VERBOSITY.INFO, self.properties)
+        log.log(di_log.VERBOSITY.INFO, ("project '%s' loaded") % project_name)
+        log.log(di_log.VERBOSITY.MAX, self.properties)
 
     # properties
     path = ""
