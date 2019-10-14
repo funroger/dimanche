@@ -7,7 +7,7 @@ import os
 
 
 class Config:
-    def __init__(self, config_file_path : str, log : di_log):
+    def __init__(self, config_file_path: str, log: di_log):
 
         if not os.path.exists(config_file_path):
             di_platform.exit_on_error("can't find the config file at '%s'" % \
@@ -27,7 +27,7 @@ class Config:
                             log.log(di_log.VERBOSITY.WARNING,
                                 "can't find the tool '%s' at '%s'" % \
                                 (tool_name + ":" + tool_type, tool_path))
-                        print(tool_name + ":" + tool_type + ": " + tool_path)
+                        log.log(di_log.VERBOSITY.INFO, tool_name + ":" + tool_type + ": " + tool_path)
 
     def __repr__(self):
         rep = "Config{"
@@ -42,6 +42,6 @@ class Config:
     properties = {}
 
 
-def load_config(config_file_path : str, log : di_log.Log):
+def load_config(config_file_path: str, log: di_log.Log):
     config = Config(config_file_path, log)
     return config

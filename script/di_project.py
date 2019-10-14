@@ -37,13 +37,13 @@ def update_list(obj: list, variables: dict, log: di_log.Log = None):
 
 
 
-def update_dict(obj: dict, variables: dict, log: di_log.Log = None):
+def update_dict(obj: dict, VARIABLES: dict, log: di_log.Log = None):
     #print("-- update dict ---")
     #print(obj)
+    variables = VARIABLES.copy()
     for key, value in obj.items():
         if "variables" == key:
-            # there is not need to update variables 
-            continue
+            variables = parse_variables(variables, value)
         elif dict == type(value):
             update_dict(value, variables, log)
         elif list == type(value):
@@ -65,7 +65,9 @@ class Project:
         project_file = open(self.path)
         projects = json.load(project_file)
 
-        GLOBAL_VARIABLES = parse_variables({}, projects["variables"])
+        GLOBAL_VARIABLES = {}
+        # update values
+        update_dict(projects, GLOBAL_VARIABLES, log)
 
         # find the project
         for project in projects["projects"]:
@@ -83,7 +85,7 @@ class Project:
             di_platform.exit_on_error("can't find '%s' project in the file '%s'" % \
                 (project_name, project_file_path), log, __file__)
 
-        print(self.properties)
+        log.log(di_log.VERBOSITY.INFO, self.properties)
 
     # properties
     path = ""
