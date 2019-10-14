@@ -3,9 +3,13 @@
 # logger uses configuration context as first variable.
 # "log_level" variable sets the detail level of the log.
 
-import colorama
 import di_format
 import di_platform
+
+# platform specific
+if "windows" == di_platform.os_name():
+    import colorama
+    colorama.init()
 
 
 class VERBOSITY:

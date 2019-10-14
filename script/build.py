@@ -76,7 +76,7 @@ def load_project(ctx):
     project_file_path = project_path + "/" + project_file_name
     project_file_path = os.path.abspath(project_file_path)
 
-    project = di_project.load_project(project_file_path, "basic", log)
+    project = di_project.load_project(project_file_path, log)
 
 def main():
 
