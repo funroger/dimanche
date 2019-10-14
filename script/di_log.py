@@ -3,50 +3,56 @@
 # logger uses configuration context as first variable.
 # "log_level" variable sets the detail level of the log.
 
+import colorama
 import di_format
+import di_platform
 
-INFO=0
-WARNING=1
-ERROR=2
-MESSAGE=3
-SILENT=1024
 
-DEFAULT_VERBOSITY=ERROR
+class VERBOSITY:
+    INFO = 0
+    WARNING = 1
+    ERROR = 2
+    MESSAGE = 3
+    SILENT = 1024
+
+    DEFAULT = ERROR
 
 
 def string_to_verbosity(string):
-    verbosity = DEFAULT_VERBOSITY
+    verbosity = VERBOSITY.DEFAULT
     if "info" == string:
-        verbosity = INFO
+        verbosity = VERBOSITY.INFO
     elif "warning" == string:
-        verbosity = WARNING
+        verbosity = VERBOSITY.WARNING
     elif "error" == string:
-        verbosity = ERROR
+        verbosity = VERBOSITY.ERROR
     elif "message" == string:
-        verbosity = MESSAGE
+        verbosity = VERBOSITY.MESSAGE
     elif "silent" == string:
-        verbosity = SILENT
+        verbosity = VERBOSITY.SILENT
     return verbosity
 
 
 def verbosity_to_string(verbosity):
     string = "UNKNOWN"
-    if INFO == verbosity:
+    if VERBOSITY.INFO == verbosity:
         string = "info"
-    elif WARNING == verbosity:
+    elif VERBOSITY.WARNING == verbosity:
         string = "warning"
-    elif ERROR == verbosity:
+    elif VERBOSITY.ERROR == verbosity:
         string = "error"
-    elif MESSAGE == verbosity:
+    elif VERBOSITY.MESSAGE == verbosity:
         string = "message"
-    elif SILENT == verbosity:
+    elif VERBOSITY.SILENT == verbosity:
         string = "silent"
     return string
 
 
 class Log:
-    def __init__(self, verbosity = DEFAULT_VERBOSITY):
+    def __init__(self, verbosity = VERBOSITY.DEFAULT):
         self.verbosity = verbosity
+        if "windows" == di_platform.os_name():
+            colorama.init()
 
     def __repr__(self):
         return "Log{verbosity=%s}" % verbosity_to_string(self.verbosity)
@@ -54,13 +60,13 @@ class Log:
     def log(self, level, message):
         if level >= self.verbosity:
             error_message = message
-            if WARNING == level:
+            if VERBOSITY.WARNING == level:
                 error_message = di_format.WARNING + ": " + message
-            elif ERROR == level:
+            elif VERBOSITY.ERROR == level:
                 error_message = di_format.ERROR + ": " + message
-            elif MESSAGE == level:
-                error_message = di_format.LIGHT_WHITE + message + di_format.NC
+            elif VERBOSITY.MESSAGE == level:
+                error_message = di_format.COLOR.LIGHT_WHITE + message + di_format.COLOR.NONE
             print(error_message)
 
     # properties
-    verbosity = DEFAULT_VERBOSITY
+    verbosity = VERBOSITY.DEFAULT

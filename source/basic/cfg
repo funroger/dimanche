@@ -1,0 +1,65 @@
+{
+    "projects": [{
+        "name": "basic",
+        "dependency": [],
+        "variables": {
+            ".*": {
+                "<includes>": ["include", "header"]
+            },
+            "windows" : {
+                "<cflags>": ["/O2", "/W4"],
+                "<copy_includes>" : [
+                    "copy include/*.h ../include/",
+                    "attrib +r ../include/*.*"
+                ]
+            },
+            "linux|macos" : {
+                "<cflags>": ["-O2", "-Wall"]
+            }
+        },
+        "build": {
+            "compiler" : {
+                ".*": {
+                    "c": {
+                        "flags": "<cflags>",
+                        "include": "<includes>",
+                        "source/.*\\.c": ""
+                     },
+                     "cpp": {
+                        "flags": "<cflags>",
+                        "include": "<includes>",
+                        "source/.*\\.cpp": ""
+                     }
+                },
+                ".*x86.*": {
+                    "asm": {
+                        "flags": "",
+                        "source/x86/.*\\.asm": "yasm"
+                    },
+                    "c": {
+                        "flags": "<cflags>",
+                        "include": "<includes>",
+                        "source/x86/.*\\.c": ""
+                    }
+                },
+                ".*arm.*": {
+                    "c": {
+                        "flags": "<cflags>",
+                        "include": "<includes>",
+                        "arm/.*\\.c": ""
+                    }
+                }
+            },
+            "linker" : {
+                ".*": {
+                    "name": "basic",
+                    "type": "static",
+                    "input": []
+                }
+            },
+            "shell" : {
+                ".*": "<copy_includes>"
+            }
+        }
+    }]
+}

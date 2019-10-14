@@ -5,20 +5,23 @@ import argparse
 import di_config
 import di_log
 import di_platform
+import di_project
 import os
 import pathlib
 #import sys
 
 
 def parse_parameters(ctx):
-    os_name = di_platform.get_os_name()
+    os_name = di_platform.os_name()
+    platform_name = di_platform.platform_name()
 
     default_config = "debug"
     default_os = os_name
-    default_platform = di_platform.get_platform_name()
-    default_verbosity = di_log.verbosity_to_string(di_log.DEFAULT_VERBOSITY)
+    default_platform = platform_name
+    default_verbosity = di_log.verbosity_to_string(di_log.VERBOSITY.DEFAULT)
 
-    default_config_path = os.path.dirname(__file__) + "/" + "../config/" + os_name
+    default_config_path = os.path.dirname(__file__) + "/" + "../config/" + \
+        os_name + "-" + platform_name;
     default_config_path = os.path.abspath(default_config_path)
 
     # initialize argument parser
@@ -55,12 +58,25 @@ def load_configuration(ctx):
         ctx["args"].config + ".cfg"
     config_path = ctx["args"].config_path
     config_file_path = config_path + "/" + config_file_name
+    config_file_path = os.path.abspath(config_file_path)
 
-    ctx["config"] = di_config.LoadConfig(config_file_path, log)
-    print(ctx["config"])
+    config = di_config.load_config(config_file_path, log)
+    ctx["config"] = config
+    print(config)
 
-    log.log(di_log.MESSAGE, "config file %s loaded" % config_file_name) 
+    log.log(di_log.VERBOSITY.MESSAGE, "config file %s loaded" % config_file_name)
 
+
+def load_project(ctx):
+    log = ctx["log"]
+
+    # build a project file name
+    project_file_name = ctx["args"].project_path
+    project_path = os.getcwd()
+    project_file_path = project_path + "/" + project_file_name
+    project_file_path = os.path.abspath(project_file_path)
+
+    project = di_project.load_project(project_file_path, "basic", log)
 
 def main():
 
@@ -71,12 +87,14 @@ def main():
 
     # create a logging object
     verbosity = ctx["args"].verbosity
-    ctx["log"] = di_log.Log(di_log.string_to_verbosity(verbosity))
-    ctx["log"].log(di_log.INFO, str(ctx))
+    log = di_log.Log(di_log.string_to_verbosity(verbosity))
+    ctx["log"] = log
+    log.log(di_log.VERBOSITY.INFO, str(ctx))
 
     load_configuration(ctx)
 
     # build a dependency tree
+    load_project(ctx)
 
     # start building
    

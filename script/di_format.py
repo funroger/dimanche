@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 
-NC = "\033[0m"
-NC = "\033[0m" # No Color
+class COLOR:
+    NONE = "\033[0m" # No Color
 
-GREEN = "\033[0;32m"
-RED = "\033[0;31m"
-WHITE = "\033[1;97m"
+    GREEN = "\033[0;32m"
+    RED = "\033[0;31m"
+    WHITE = "\033[1;97m"
 
-LIGHT_GREEN = "\033[1;92m"
-LIGHT_RED = "\033[1;91m"
-LIGHT_YELLOW = "\033[1;93m"
-LIGHT_WHITE = "\033[1;97m"
+    LIGHT_GREEN = "\033[1;92m"
+    LIGHT_RED = "\033[1;91m"
+    LIGHT_YELLOW = "\033[1;93m"
+    LIGHT_WHITE = "\033[1;97m"
 
-ERROR = LIGHT_RED + "Error" + NC
-FAILED = LIGHT_RED + "Failed" + NC
-OK = LIGHT_GREEN + "Ok" + NC
-SUCCESS = LIGHT_GREEN + "Success" + NC
-WARNING = LIGHT_YELLOW + "Warning" + NC
+ERROR = COLOR.LIGHT_RED + "Error" + COLOR.NONE
+FAILED = COLOR.LIGHT_RED + "Failed" + COLOR.NONE
+OK = COLOR.LIGHT_GREEN + "Ok" + COLOR.NONE
+SUCCESS = COLOR.LIGHT_GREEN + "Success" + COLOR.NONE
+WARNING = COLOR.LIGHT_YELLOW + "Warning" + COLOR.NONE

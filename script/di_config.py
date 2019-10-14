@@ -17,14 +17,18 @@ class Config:
         config_file = open(self.path)
         self.properties = json.load(config_file)
 
-        for tools in self.properties["tools"]:
-            for tool in tools["items"]:
-                tool_type = tool["type"]
-                tool_path = tool["path"]
-                if not os.path.exists(tool_path):
-                    di_platform.exit_on_error("can't find the tool for '%s' at '%s'" % \
-                        (tool_type, tool_path), log, __file__)
-        
+        for key, value in self.properties.items():
+            if not "defaults" == key:
+                for tool_type, tools in value.items():
+                    for tool in tools:
+                        tool_name = tool["name"]
+                        tool_path = tool["path"]
+                        if not os.path.exists(tool_path):
+                            log.log(di_log.VERBOSITY.WARNING,
+                                "can't find the tool '%s' at '%s'" % \
+                                (tool_name + ":" + tool_type, tool_path))
+                        print(tool_name + ":" + tool_type + ": " + tool_path)
+
     def __repr__(self):
         rep = "Config{"
         rep += "path='%s'" % self.path
@@ -38,6 +42,6 @@ class Config:
     properties = {}
 
 
-def LoadConfig(config_file_path : str, log : di_log.Log):
+def load_config(config_file_path : str, log : di_log.Log):
     config = Config(config_file_path, log)
     return config
