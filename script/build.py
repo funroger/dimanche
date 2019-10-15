@@ -9,6 +9,7 @@ import di_project
 import os
 import pathlib
 #import sys
+import time
 
 
 def parse_parameters(ctx):
@@ -76,7 +77,10 @@ def load_project(ctx):
     project_file_path = project_path + "/" + project_file_name
     project_file_path = os.path.abspath(project_file_path)
 
+    begin = time.perf_counter()
     project = di_project.load_project(project_file_path, log)
+    end = time.perf_counter()
+    log.log(di_log.VERBOSITY.INFO, "project loaded in %.03f seconds" % (end - begin))
 
 def main():
 

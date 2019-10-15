@@ -30,7 +30,11 @@
             }
         },
         "name": "<name>",
-        "dependency": [],
+        "dependency": [
+            "::hal",
+            "../basic/cfg::hal",
+            "/Users/vcherepanov/Projects/git/dimanche/source/basic/cfg::hal"
+        ],
         "public": {
             "c": {
                 "include": "<public_includes>"
@@ -86,5 +90,10 @@
                 ".*": "<copy_includes>"
             }
         }
+    }, {
+        "name": "hal",
+        "dependency": [],
+        "public": {},
+        "build": {}
     }]
 }
