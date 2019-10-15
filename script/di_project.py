@@ -37,7 +37,8 @@ def get_project_file_path(project_path: str):
 
 
 def get_project_name(project_path: str):
-    return project_path.split("::", 1)[1]
+    result = project_path.split("::", 1)
+    return result[1] if 2 <= len(result) else ""
 
 
 def load_project(project_path: str, log: di_log.Log):

@@ -13,6 +13,49 @@ import pathlib
 import time
 
 
+def parse_parameters(ctx):
+
+    defaults = __load_defaults()
+    default_target = defaults["target"]
+
+    # initialize argument parser
+    parser = argparse.ArgumentParser()
+    parser.add_argument("project_path", type = str, help = "path to a project to build",
+        default = "")
+    parser.add_argument("--config", type = str, help = "target configuration to build \
+        (default is %s)" % default_target["config"],
+        choices = (['debug', 'release']), default = default_target["config"])
+    parser.add_argument("--config_path", type = str, help = "path to config files \
+        (default is %s)" % defaults["config_path"],
+        default = defaults["config_path"])
+    parser.add_argument("--defaults", type = str, help = "how treat default values",
+        choices = (['update', 'reset']), default = "")
+    parser.add_argument("--os", type = str, help="target OS to build \
+        (default is %s)" % default_target["os"],
+        choices = (['android', 'ios', 'linux', 'macos', 'windows']), default = default_target["os"])
+    parser.add_argument("--platform", type = str, help = "target platform to build \
+        (default is %s)" % default_target["platform"],
+        choices = (['arm-v7a', 'arm-v8a', 'x86_64', 'x86']), default = default_target["platform"])
+    parser.add_argument("--toolset", type = str, help = "toolset to use \
+        (default toolset depends on a platform)",
+        default = defaults["toolset"])
+    parser.add_argument("--verbosity", type = str, help = "verbosity level \
+        (default is %s)" % defaults["verbosity"],
+        choices = (['max', 'info', 'warning', 'error', 'message', 'silent']), default = defaults["verbosity"])
+    args = parser.parse_args()
+    # save actual values
+    ctx["args"] = args
+
+    if "update" == args.defaults:
+        defaults["config_path"] = args.config_path
+        default_target["config"] = args.config
+        default_target["os"] = args.os
+        default_target["platform"] = args.platform
+        defaults["toolset"] = args.toolset
+        defaults["verbosity"] = args.verbosity
+        __save_defaults(defaults)
+
+
 __DEFAULT_SETTINGS_RELATIVE_PATH = "build.settings"
 
 
@@ -32,8 +75,7 @@ def __load_defaults(reset: bool = False):
     # update missed defaults
     if not "config_path" in defaults:
         defaults["config_path"] = os.path.join("..", "config", os_name + "-" + platform_name)
-    if not "target" in defaults:
-        defaults["target"] = {}
+    if not "target" in defaults: defaults["target"] = {}
     target = defaults["target"]
     if not "config" in target: target["config"] = "debug"
     if not "os" in target: target["os"] = os_name
@@ -51,49 +93,6 @@ def __save_defaults(defaults: dict):
     # save the settings
     file = open(default_settings_path, "w")
     json.dump(defaults, file, indent = 2, separators = (",", ": "), sort_keys = True)
-
-
-def parse_parameters(ctx):
-
-    defaults = __load_defaults()
-    default_target = defaults["target"]
-
-    # initialize argument parser
-    parser = argparse.ArgumentParser()
-    parser.add_argument("project_path", type = str, help = "path to a project to build")
-    parser.add_argument("--config", type = str, help = "configuration to build \
-        [debug, release] (default is %s)" % default_target["config"],
-        default = default_target["config"])
-    parser.add_argument("--config_path", type = str, help = "path to config files \
-        (default is %s)" % defaults["config_path"],
-        default = defaults["config_path"])
-    parser.add_argument("--defaults", type = str, help = "default values are to \
-        (update, reset, '')",
-        default = "")
-    parser.add_argument("--os", type = str, help="target OS to build \
-        [android, ios, linux, darwin, windows] (default is %s)" % default_target["os"],
-        default = default_target["os"])
-    parser.add_argument("--platform", type = str, help = "platform to build \
-        [arm-v7a, arm-v8a, x86_64, x86] (default is %s)" % default_target["platform"],
-        default = default_target["platform"])
-    parser.add_argument("--toolset", type = str, help = "toolset to use \
-        (default toolset depends on a platform)",
-        default = defaults["toolset"])
-    parser.add_argument("--verbosity",type = str, help = "verbosity level \
-        [max, info, warning, error, message, silent] (default is %s)" % defaults["verbosity"],
-        default = defaults["verbosity"])
-    args = parser.parse_args()
-    # save actual values
-    ctx["args"] = args
-
-    if "update" == args.defaults:
-        defaults["config_path"] = args.config_path
-        default_target["config"] = args.config
-        default_target["os"] = args.os
-        default_target["platform"] = args.platform
-        defaults["toolset"] = args.toolset
-        defaults["verbosity"] = args.verbosity
-        __save_defaults(defaults)
 
 
 def load_configuration(ctx):
@@ -128,6 +127,7 @@ def load_project(ctx):
     end = time.perf_counter()
     log.log(di_log.VERBOSITY.INFO, "project loaded in %.03f seconds" % (end - begin))
 
+
 def main():
 
     di_platform.clear()
@@ -151,5 +151,6 @@ def main():
     load_project(ctx)
 
     # start building
-   
+
+
 main()
