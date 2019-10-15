@@ -1,0 +1,10 @@
+{
+  "config_path": "../config/macos-x86_64",
+  "target": {
+    "config": "debug",
+    "os": "macos",
+    "platform": "x86_64"
+  },
+  "toolset": "",
+  "verbosity": "info"
+}
