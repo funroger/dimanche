@@ -37,10 +37,6 @@ class Config:
         rep += "}"
         return rep
 
-    # properties
-    path = ""
-    properties = {}
-
 
 def load_config(config_file_path: str, log: di_log.Log):
     config = Config(config_file_path, log)

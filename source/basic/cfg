@@ -32,8 +32,7 @@
         "name": "<name>",
         "dependency": [
             "::hal",
-            "../basic/cfg::hal",
-            "/Users/vcherepanov/Projects/git/dimanche/source/basic/cfg::hal"
+            "../basic/cfg::hal"
         ],
         "public": {
             "c": {

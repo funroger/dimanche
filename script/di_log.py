@@ -76,6 +76,3 @@ class Log:
             elif VERBOSITY.MESSAGE == level:
                 error_message = di_format.COLOR.LIGHT_WHITE + message + di_format.COLOR.NONE
             print(error_message)
-
-    # properties
-    verbosity = VERBOSITY.DEFAULT
