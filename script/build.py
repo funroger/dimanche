@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
 import argparse
-#import di_android
-import di_config
+import di_build_settings
 import di_log
 import di_platform
 import di_project
 import json
 import os
-import pathlib
-#import sys
+import tempfile
 import time
 
 
@@ -20,20 +18,25 @@ def parse_parameters(ctx):
 
     # initialize argument parser
     parser = argparse.ArgumentParser()
-    parser.add_argument("project_path", type = str, help = "path to a project to build",
-        default = "")
-    parser.add_argument("--config", type = str, help = "target configuration to build \
-        (default is %s)" % default_target["config"],
-        choices = (['debug', 'release']), default = default_target["config"])
-    parser.add_argument("--config_path", type = str, help = "path to config files \
-        (default is %s)" % defaults["config_path"],
-        default = defaults["config_path"])
+    parser.add_argument("project_path", type = str, help = "path to a project to build")
     parser.add_argument("--defaults", type = str, help = "how treat default values",
         choices = (['update', 'reset']), default = "")
-    parser.add_argument("--os", type = str, help="target OS to build \
+    parser.add_argument("--build_settings_path", type = str, help = "path to settings files \
+        (default is %s)" % defaults["build_settings_path"],
+        default = defaults["build_settings_path"])
+    parser.add_argument("--output_root", type = str, help = "upper level folder to store temporal files \
+        (default is %s)" % defaults["output_root"],
+        default = defaults["output_root"])
+    parser.add_argument("--source_root", type = str, help = "upper level folder with sources \
+        (default is %s)" % defaults["source_root"],
+        default = defaults["source_root"])
+    parser.add_argument("--target_config", type = str, help = "target configuration to build \
+        (default is %s)" % default_target["config"],
+        choices = (['debug', 'release']), default = default_target["config"])
+    parser.add_argument("--target_os", type = str, help = "target OS to build \
         (default is %s)" % default_target["os"],
         choices = (['android', 'ios', 'linux', 'macos', 'windows']), default = default_target["os"])
-    parser.add_argument("--platform", type = str, help = "target platform to build \
+    parser.add_argument("--target_platform", type = str, help = "target platform to build \
         (default is %s)" % default_target["platform"],
         choices = (['arm-v7a', 'arm-v8a', 'x86_64', 'x86']), default = default_target["platform"])
     parser.add_argument("--toolset", type = str, help = "toolset to use \
@@ -47,22 +50,25 @@ def parse_parameters(ctx):
     ctx["args"] = args
 
     if "update" == args.defaults:
-        defaults["config_path"] = args.config_path
-        default_target["config"] = args.config
-        default_target["os"] = args.os
-        default_target["platform"] = args.platform
+        defaults["build_settings_path"] = args.build_settings_path
+        defaults["output_root"] = args.output_root
+        defaults["source_root"] = args.source_root
+        default_target["config"] = args.target_config
+        default_target["os"] = args.target_os
+        default_target["platform"] = args.target_platform
         defaults["toolset"] = args.toolset
         defaults["verbosity"] = args.verbosity
         __save_defaults(defaults)
 
 
-__DEFAULT_SETTINGS_RELATIVE_PATH = "build.settings"
+__DEFAULT_SETTINGS_RELATIVE_PATH = "default.settings"
 
 
 def __load_defaults(reset: bool = False):
     defaults = {}
     os_name = di_platform.os_name()
     platform_name = di_platform.platform_name()
+    output_root = di_platform.temp_dir()
 
     # try to load a default settings file
     script_dir = os.path.dirname(__file__)
@@ -73,8 +79,9 @@ def __load_defaults(reset: bool = False):
         defaults = json.load(file)
 
     # update missed defaults
-    if not "config_path" in defaults:
-        defaults["config_path"] = os.path.join("..", "config", os_name + "-" + platform_name)
+    if not "build_settings_path" in defaults: defaults["build_settings_path"] = os.path.join("..", "settings", os_name + "-" + platform_name)
+    if not "output_root" in defaults: defaults["output_root"] = output_root
+    if not "source_root" in defaults: defaults["source_root"] = "~"
     if not "target" in defaults: defaults["target"] = {}
     target = defaults["target"]
     if not "config" in target: target["config"] = "debug"
@@ -95,22 +102,22 @@ def __save_defaults(defaults: dict):
     json.dump(defaults, file, indent = 2, separators = (",", ": "), sort_keys = True)
 
 
-def load_configuration(ctx):
+def load_build_settings(ctx):
     log = ctx["log"]
 
-    # build a configuration file name
+    # build a settings file name
     script_dir = os.path.dirname(__file__)
-    config_path = ctx["args"].config_path
-    config_file_name = ctx["args"].os + "-" + ctx["args"].platform + "-" + \
-        ctx["args"].config + ".cfg"
-    config_file_path = os.path.join(script_dir, config_path, config_file_name)
-    config_file_path = os.path.abspath(os.path.expandvars(config_file_path))
+    build_settings_path = ctx["args"].build_settings_path
+    build_settings_file_name = ctx["args"].target_os + "-" + ctx["args"].target_platform + "-" + \
+        ctx["args"].target_config + ".cfg"
+    build_settings_file_path = os.path.join(script_dir, build_settings_path, build_settings_file_name)
+    build_settings_file_path = os.path.abspath(os.path.expandvars(build_settings_file_path))
 
-    config = di_config.load_config(config_file_path, log)
-    ctx["config"] = config
-    log.log(di_log.VERBOSITY.MAX, config)
+    build_settings = di_build_settings.load_build_settings(build_settings_file_path, log)
+    ctx["build_settings"] = build_settings
+    log.log(di_log.VERBOSITY.MAX, build_settings)
 
-    log.log(di_log.VERBOSITY.MESSAGE, "config file %s loaded" % config_file_name)
+    log.log(di_log.VERBOSITY.MESSAGE, "build settings file %s loaded" % build_settings_file_name)
 
 
 def load_project(ctx):
@@ -141,11 +148,13 @@ def main():
     ctx["log"] = log
     log.log(di_log.VERBOSITY.MAX, ctx)
 
-    log.log(di_log.VERBOSITY.INFO, "target os %s" % ctx["args"].os)
-    log.log(di_log.VERBOSITY.INFO, "target platform %s" % ctx["args"].platform)
-    log.log(di_log.VERBOSITY.INFO, "target configuration %s" % ctx["args"].config)
+    log.log(di_log.VERBOSITY.INFO, "output root %s" % ctx["args"].output_root)
+    log.log(di_log.VERBOSITY.INFO, "source root %s" % ctx["args"].source_root)
+    log.log(di_log.VERBOSITY.INFO, "target os %s" % ctx["args"].target_os)
+    log.log(di_log.VERBOSITY.INFO, "target platform %s" % ctx["args"].target_platform)
+    log.log(di_log.VERBOSITY.INFO, "target configuration %s" % ctx["args"].target_config)
 
-    load_configuration(ctx)
+    load_build_settings(ctx)
 
     # build a dependency tree
     load_project(ctx)

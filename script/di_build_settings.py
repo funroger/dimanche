@@ -6,16 +6,16 @@ import json
 import os
 
 
-class Config:
-    def __init__(self, config_file_path: str, log: di_log):
+class BuildSettings:
+    def __init__(self, build_settings_file_path: str, log: di_log):
 
-        if not os.path.exists(config_file_path):
-            di_platform.exit_on_error("can't find the config file at '%s'" % \
-                config_file_path, log, __file__)
+        if not os.path.exists(build_settings_file_path):
+            di_platform.exit_on_error("can't find the build settings file at '%s'" % \
+                build_settings_file_path, log, __file__)
 
-        self.path = config_file_path
-        config_file = open(self.path)
-        self.properties = json.load(config_file)
+        self.path = build_settings_file_path
+        build_settings_file = open(self.path)
+        self.properties = json.load(build_settings_file)
 
         for key, value in self.properties.items():
             if not "defaults" == key:
@@ -30,7 +30,7 @@ class Config:
                         log.log(di_log.VERBOSITY.MAX, tool_name + ":" + tool_type + ": " + tool_path)
 
     def __repr__(self):
-        rep = "Config{"
+        rep = "BuildSettings {"
         rep += "path='%s'" % self.path
         for k, v in self.properties.items():
             rep += ", %s='%s'" % (k, v)
@@ -38,6 +38,6 @@ class Config:
         return rep
 
 
-def load_config(config_file_path: str, log: di_log.Log):
-    config = Config(config_file_path, log)
-    return config
+def load_build_settings(build_settings_file_path: str, log: di_log.Log):
+    settings = BuildSettings(build_settings_file_path, log)
+    return settings

@@ -5,6 +5,7 @@ import os
 import platform
 import subprocess
 import sys
+import tempfile
 
 
 def clear(): 
@@ -56,3 +57,7 @@ def platform_name():
     else:
         print(__file__ + ": unknown platform name")
         sys.exit()
+
+
+def temp_dir():
+    return '/tmp' if os_name() == 'macos' else tempfile.gettempdir()

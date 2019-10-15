@@ -1,5 +1,7 @@
 {
-  "config_path": "../config/macos-x86_64",
+  "build_settings_path": "../settings/macos-x86_64",
+  "output_root": "/tmp",
+  "source_root": "~",
   "target": {
     "config": "debug",
     "os": "macos",
