@@ -1,0 +1,12 @@
+{
+  "build_settings_path": "..\\settings\\windows-x86_64",
+  "output_root": "d:\\temp\\bin",
+  "source_root": "%SLSDK%",
+  "target": {
+    "config": "debug",
+    "os": "windows",
+    "platform": "x86_64"
+  },
+  "toolset": "",
+  "verbosity": "info"
+}

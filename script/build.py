@@ -46,8 +46,6 @@ def parse_parameters(ctx):
         (default is %s)" % defaults["verbosity"],
         choices = (['max', 'info', 'warning', 'error', 'message', 'silent']), default = defaults["verbosity"])
     args = parser.parse_args()
-    # save actual values
-    ctx["args"] = args
 
     if "update" == args.defaults:
         defaults["build_settings_path"] = args.build_settings_path
@@ -60,8 +58,16 @@ def parse_parameters(ctx):
         defaults["verbosity"] = args.verbosity
         __save_defaults(defaults)
 
+    # save actual values
+    ctx["args"] = args
+    # make real pathes
+    ctx["args"].build_settings_path = os.path.expandvars(ctx["args"].build_settings_path)
+    ctx["args"].output_root = os.path.expandvars(ctx["args"].output_root)
+    ctx["args"].source_root = os.path.expandvars(ctx["args"].source_root)
 
-__DEFAULT_SETTINGS_RELATIVE_PATH = "default.settings"
+
+__DEFAULT_SETTINGS_RELATIVE_PATH = os.path.split(__file__)[1] + \
+    "." + di_platform.os_name() + ".settings"
 
 
 def __load_defaults(reset: bool = False):
