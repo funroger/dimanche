@@ -1,98 +1,136 @@
 {
-    "variables": {
-        ".*": {
-            "<public_includes>": ["include"],
-            "<includes>": ["include", "header"]
-        },
-        "windows" : {
-        },
-        "linux|macos" : {
-        }
+  "variables": {
+    ".*": {
+      "<public_includes>": [ "include" ],
+      "<includes>": [ "include", "header" ]
     },
-    "projects": [{
-        "variables": {
-            ".*": {
-                "<name>": "basic"
-            },
-            "windows" : {
-                "<cflags>": ["/O2", "/W4"],
-                "<copy_includes>" : [
-                    "copy include/*.h ../include/",
-                    "attrib +r ../include/*.*"
-                ]
-            },
-            "linux|macos" : {
-                "<cflags>": ["-O2", "-Wall"],
-                "<copy_includes>" : [
-                    "cp include/*.h ../include/",
-                    "chmod u-w ../include/*.*"
-                ]
-            }
+    "windows": {
+    },
+    "linux|macos": {
+    }
+  },
+  "projects": {
+    "basic": {
+      "variables": {
+        ".*": {
+          "<name>": "basic"
         },
-        "name": "<name>",
-        "dependency": [
-            "::hal",
-            "../basic/cfg::hal"
-        ],
-        "public": {
-            "c": {
-                "include": "<public_includes>"
-            },
-            "cpp": {
-                "include": "<public_includes>"
-            },
-            "linker": {
-                "static": "<name>"
-            }
+        "windows": {
+          "<cflags>": [ "/O2", "/W4" ],
+          "<copy_includes>": [
+            "copy include/*.h ../include/",
+            "attrib +r ../include/*.*"
+          ]
         },
-        "build": {
-            "compiler" : {
-                ".*": {
-                    "c": {
-                        "flags": "<cflags>",
-                        "include": "<includes>",
-                        "source/.*\\.c": ""
-                     },
-                     "cpp": {
-                        "flags": "<cflags>",
-                        "include": "<includes>",
-                        "source/.*\\.cpp": ""
-                     }
-                },
-                ".*x86.*": {
-                    "asm": {
-                        "flags": "",
-                        "source/x86/.*\\.asm": "yasm"
-                    },
-                    "c": {
-                        "flags": "<cflags>",
-                        "include": "<includes>",
-                        "source/x86/.*\\.c": ""
-                    }
-                },
-                ".*arm.*": {
-                    "c": {
-                        "flags": ["-march=armv7-a", "<cflags>"],
-                        "include": "<includes>",
-                        "arm/.*\\.c": ""
-                    }
-                }
-            },
-            "linker" : {
-                ".*": {
-                    "name": "<name>",
-                    "type": "static",
-                    "input": []
-                }
-            },
-            "shell" : {
-                ".*": "<copy_includes>"
-            }
+        "linux|macos": {
+          "<cflags>": [ "-O2", "-Wall" ],
+          "<copy_includes>": [
+            "cp include/*.h ../include/",
+            "chmod u-w ../include/*.*"
+          ]
         }
-    }, {
-        "name": "hal",
-        "dependency": [],
-        "public": {},
-        "build": {}
-    }]
+      },
+      "dependency": [
+        "::hal",
+        "../basic/cfg::hal"
+      ],
+      "public": {
+        "c": {
+          "include": "<public_includes>"
+        },
+        "cpp": {
+          "include": "<public_includes>"
+        },
+        "linker": {
+          "static": "<name>"
+        }
+      },
+      "build": {
+        "compiler": [
+          {
+            "flags": "<cflags>",
+            "include": "<includes>",
+            "source": [
+              "./**/*.c"
+            ],
+            "target": ".*",
+            "toolset": "",
+            "type": "c"
+          },
+          {
+            "flags": "<cflags>",
+            "include": "<includes>",
+            "source": [
+              "./**/*.c"
+            ],
+            "target": ".*",
+            "toolset": "msvc2015",
+            "type": "c"
+          },
+          {
+            "flags": "<cflags>",
+            "include": "<includes>",
+            "source": [
+              "./**/*.cpp"
+            ],
+            "target": ".*",
+            "toolset": "",
+            "type": "cpp"
+          },
+          {
+            "flags": "",
+            "source": [
+              "source/x86/*.asm"
+            ],
+            "target": ".*x86.*",
+            "toolset": "yasm",
+            "type": "asm"
+          },
+          {
+            "flags": "<cflags>",
+            "include": "<includes>",
+            "source": [
+              "source/x86/*.c"
+            ],
+            "target": ".*x86.*",
+            "toolset": "",
+            "type": "c"
+          },
+          {
+            "flags": [ "-march=armv7-a", "<cflags>" ],
+            "include": "<includes>",
+            "source": [
+              "source/arm/*.c"
+            ],
+            "target": ".*arm.*",
+            "toolset": "",
+            "type": "c"
+          }
+        ],
+        "linker": [
+          {
+            "input": [],
+            "output": "<name>",
+            "target": ".*",
+            "type": "static"
+          }
+        ],
+        "shell": [
+          {
+            "command": "<copy_includes>",
+            "target": ".*"
+          },
+          {
+            "command": "<copy_includes>",
+            "target": ".*arm.*"
+          }
+        ]
+      }
+    },
+    "hal": {
+      "dependency": [],
+      "public": {},
+      "build": {}
+    }
+  }
 }

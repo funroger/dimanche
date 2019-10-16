@@ -116,12 +116,14 @@ def load_build_settings(ctx):
     # build a settings file name
     script_dir = os.path.dirname(__file__)
     build_settings_path = ctx["args"].build_settings_path
-    build_settings_file_name = ctx["args"].target_os + "-" + ctx["args"].target_platform + "-" + \
-        ctx["args"].target_config + ".cfg"
+    build_target = ctx["args"].target_os + "-" + ctx["args"].target_platform + "-" + \
+        ctx["args"].target_config
+    build_settings_file_name = build_target + ".cfg"
     build_settings_file_path = os.path.join(script_dir, build_settings_path, build_settings_file_name)
     build_settings_file_path = os.path.abspath(os.path.expandvars(build_settings_file_path))
 
     build_settings = di_build_settings.load_build_settings(build_settings_file_path, log)
+    ctx["build_target"] = build_target
     ctx["build_settings"] = build_settings
     log.log(di_log.VERBOSITY.MAX, build_settings)
 
@@ -138,7 +140,7 @@ def load_project(ctx):
     project_file_path = os.path.abspath(os.path.expandvars(project_file_path))
 
     begin = time.perf_counter()
-    project = di_project.load_project(project_file_path, log)
+    project = di_project.load_project(project_file_path, ctx["build_target"], log)
     end = time.perf_counter()
     log.log(di_log.VERBOSITY.INFO, "project loaded in %.03f seconds" % (end - begin))
 

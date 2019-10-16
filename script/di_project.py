@@ -2,6 +2,7 @@
 
 import di_log
 import di_platform
+import glob
 import json
 import os
 import re
@@ -41,12 +42,12 @@ def get_project_name(project_path: str):
     return result[1] if 2 <= len(result) else ""
 
 
-def load_project(project_path: str, log: di_log.Log):
+def load_project(project_path: str, target: str, log: di_log.Log):
 
     project_files_cache = {}
     project_cache = {}
 
-    project_graph = __build_project_graph(project_path,
+    project_graph = __build_project_graph(project_path, target,
         project_files_cache, project_cache, log)
 
     # check the project graph
@@ -56,8 +57,8 @@ def load_project(project_path: str, log: di_log.Log):
     return project_graph
 
 
-def __build_project_graph(project_path: str, project_files_cache: dict,
-    project_cache: dict, log: di_log.Log):
+def __build_project_graph(project_path: str, target: str,
+    project_files_cache: dict, project_cache: dict, log: di_log.Log):
 
     project_name = get_project_name(project_path)
 
@@ -66,8 +67,8 @@ def __build_project_graph(project_path: str, project_files_cache: dict,
             project_name)
         return project_cache[project_path]
 
-    project = __load_project(project_path, project_files_cache,
-        project_cache, log)
+    project = __load_project(project_path, target,
+        project_files_cache, project_cache, log)
 
     dependencies = project.settings["dependency"]
     if dependencies:
@@ -107,7 +108,7 @@ def __build_project_graph(project_path: str, project_files_cache: dict,
             # if not then load the dependency project
             if False == duplicate:
                 project.dependencies.append(__build_project_graph(dependency_path,
-                    project_files_cache, project_cache, log))
+                    target, project_files_cache, project_cache, log))
 
     return project
 
@@ -123,8 +124,8 @@ def __check_for_cycles(project: Project, log: di_log.Log):
     project.visited = 0
 
 
-def __load_project(project_path: str, project_files_cache: dict,
-    project_cache: dict, log: di_log.Log):
+def __load_project(project_path: str, target: str,
+    project_files_cache: dict, project_cache: dict, log: di_log.Log):
 
     project_file_path = get_project_file_path(project_path)
     project_name = get_project_name(project_path)
@@ -139,9 +140,13 @@ def __load_project(project_path: str, project_files_cache: dict,
         file = open(project_file_path)
         project_file = json.load(file)
 
+        # filter platform & host
+        host = di_platform.os_name()
+        __filter(project_file, target, host)
+
         # update values
         GLOBAL_VARIABLES = {}
-        __update_dict(project_file, GLOBAL_VARIABLES, log)
+        __expand_variables_dict(project_file, GLOBAL_VARIABLES, log)
 
         project_files_cache[project_file_path] = project_file
         log.log(di_log.VERBOSITY.INFO, "project file '%s' loaded from the file" %
@@ -153,10 +158,15 @@ def __load_project(project_path: str, project_files_cache: dict,
 
     # find the project
     project = {}
-    for project_settings in project_file["projects"]:
-        if project_name == project_settings["name"]:
-            project = Project(project_path, project_settings, log)
-            project_cache[project_path] = project
+    if "projects" in project_file:
+        for name in project_file["projects"]:
+            if project_name == name:
+                project_settings = project_file["projects"][name]
+                project_dir = get_project_dir(project_path)
+                __expand_source_files_dict(project_settings, project_dir)
+                project = Project(project_path, project_settings, log)
+                project_cache[project_path] = project
+                break
 
     if not project:
         di_platform.exit_on_error("can't find project '%s' in the file '%s'" % \
@@ -165,43 +175,61 @@ def __load_project(project_path: str, project_files_cache: dict,
     return project
 
 
-def __update(obj, variables: dict, log: di_log.Log = None):
-    #print("-- update str ---")
-    #print(obj)
-    for key, value in variables.items():
-        if obj == key:
-            if not None == log:
-                log.log(di_log.VERBOSITY.MAX, "replace %s -> %s" % (key, value))
-            return value
-    return obj
-
-
-def __update_dict(obj: dict, VARIABLES: dict, log: di_log.Log = None):
-    #print("-- update dict ---")
-    #print(obj)
-    variables = VARIABLES.copy()
-    for key, value in obj.items():
-        if "variables" == key:
-            variables = __update_variables(variables, value)
+def __expand_source_files_dict(settings: dict, project_dir: str):
+    for key, value in settings.items():
+        if "source" == key and list == type(value):
+            source_files_list = []
+            for source_item in value:
+                path = os.path.join(project_dir, source_item)
+                path = os.path.abspath(os.path.expandvars(path))
+                for source_file in glob.glob(path, recursive = True):
+                    source_files_list.append(source_file)
+            settings[key] = source_files_list
         elif dict == type(value):
-            __update_dict(value, variables, log)
+            __expand_source_files_dict(value, project_dir)
         elif list == type(value):
-            __update_list(value, variables, log)
+            __expand_source_files_list(value, project_dir)
+
+
+def __expand_source_files_list(settings: list, project_dir: str):
+    for item in settings:
+        if dict == type(item):
+            __expand_source_files_dict(item, project_dir)
+        elif list == type(item):
+            __expand_source_files_list(item, project_dir)
+
+
+def __expand_variables(obj, variables: dict, log: di_log.Log = None):
+    if obj in variables:
+        if log: log.log(di_log.VERBOSITY.MAX, "replace %s -> %s" % (obj, variables[obj]))
+        return variables[obj]
+    else:
+        return obj
+
+
+def __expand_variables_dict(obj: dict, VARIABLES: dict, log: di_log.Log = None):
+    variables = VARIABLES
+    if "variables" in obj:
+        variables = __update_variables(variables, obj["variables"])
+
+    for key, value in obj.items():
+        if (dict == type(value)) and ("variables" != key):
+            __expand_variables_dict(value, variables, log)
+        elif list == type(value):
+            __expand_variables_list(value, variables, log)
         elif str == type(value):
-            obj[key] = __update(value, variables, log)
+            obj[key] = __expand_variables(value, variables, log)
 
 
-def __update_list(obj: list, variables: dict, log: di_log.Log = None):
-    #print("-- update list ---")
-    #print(obj)
+def __expand_variables_list(obj: list, variables: dict, log: di_log.Log = None):
     for x in range(len(obj)):
         value = obj[x]
         if dict == type(value):
-            __update_dict(value, variables, log)
+            __expand_variables_dict(value, variables, log)
         elif list == type(value):
-            __update_list(value, variables, log)
+            __expand_variables_list(value, variables, log)
         elif str == type(value):
-            value = __update(value, variables, log)
+            value = __expand_variables(value, variables, log)
             if list == type(value):
                 obj.pop(x)
                 obj.extend(value)
@@ -210,10 +238,23 @@ def __update_list(obj: list, variables: dict, log: di_log.Log = None):
 
 
 def __update_variables(existing_variables: dict, more_variables: dict):
-    OS_NAME = di_platform.os_name()
+    host = di_platform.os_name()
     variables = existing_variables.copy()
 
     for key, value in more_variables.items():
-        if re.match(key, OS_NAME):
-            variables = dict(variables, **value)
+        if re.match(key, host): variables = dict(variables, **value)
     return variables
+
+
+def __filter(settings, target: str, host: str):
+    if dict == type(settings):
+        if ("host" in settings and not re.match(settings["host"], host) or \
+            ("target" in settings and not re.match(settings["target"], target))):
+            settings.clear()
+        else:
+            if "host" in settings: settings.pop("host")
+            if "target" in settings: settings.pop("target")
+            for key in settings: __filter(settings[key], target, host)
+    elif list == type(settings):
+        for item in settings: __filter(item, target, host)
+        while {} in settings: settings.remove({})
