@@ -11,9 +11,9 @@ import tempfile
 import time
 
 
-def parse_parameters(ctx):
+def parse_parameters(ctx, reset: bool = False):
 
-    defaults = __load_defaults()
+    defaults = __load_defaults(reset)
     default_target = defaults["target"]
 
     # initialize argument parser
@@ -56,6 +56,7 @@ def parse_parameters(ctx):
         default_target["platform"] = args.target_platform
         defaults["toolset"] = args.toolset
         defaults["verbosity"] = args.verbosity
+    if "update" == args.defaults or "reset" == args.defaults:
         __save_defaults(defaults)
 
     # save actual values
@@ -77,12 +78,13 @@ def __load_defaults(reset: bool = False):
     output_root = di_platform.temp_dir()
 
     # try to load a default settings file
-    script_dir = os.path.dirname(__file__)
-    default_settings_path = os.path.join(script_dir, __DEFAULT_SETTINGS_RELATIVE_PATH)
-    if os.path.exists(default_settings_path) and os.path.isfile(default_settings_path):
-        # load defaults from the file
-        file = open(default_settings_path)
-        defaults = json.load(file)
+    if not reset:
+        script_dir = os.path.dirname(__file__)
+        default_settings_path = os.path.join(script_dir, __DEFAULT_SETTINGS_RELATIVE_PATH)
+        if os.path.exists(default_settings_path) and os.path.isfile(default_settings_path):
+            # load defaults from the file
+            file = open(default_settings_path)
+            defaults = json.load(file)
 
     # update missed defaults
     if not "build_settings_path" in defaults: defaults["build_settings_path"] = os.path.join("..", "settings", os_name + "-" + platform_name)
@@ -147,6 +149,8 @@ def main():
 
     ctx = {}
     parse_parameters(ctx)
+    if "reset" == ctx["args"].defaults:
+        parse_parameters(ctx, True)
 
     # create a logging object
     verbosity = ctx["args"].verbosity
