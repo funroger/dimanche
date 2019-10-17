@@ -1,6 +1,6 @@
 {
   "build_settings_path": "..\\settings\\windows-x86_64",
-  "output_root": "d:\\temp\\bin",
+  "output_root": "d:\\temp\\_bin",
   "source_root": "%SLSDK%",
   "target": {
     "config": "debug",

@@ -168,7 +168,7 @@ def main():
 
     load_build_settings(ctx)
 
-    # build a dependency tree
+    # build a project graph
     load_project(ctx)
 
     # start building
