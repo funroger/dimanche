@@ -42,7 +42,7 @@ def get_project_name(project_path: str):
     return result[1] if 2 <= len(result) else ""
 
 
-def load_project(project_path: str, target: str, log: di_log.Log):
+def load_project_graph(project_path: str, target: str, log: di_log.Log):
 
     project_files_cache = {}
     project_cache = {}

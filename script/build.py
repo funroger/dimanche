@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import di_build_fusion_core
 import di_build_settings
 import di_log
 import di_platform
@@ -130,7 +131,7 @@ def load_build_settings(ctx):
     log.log(di_log.VERBOSITY.MESSAGE, "build settings file %s loaded" % build_settings_file_name)
 
 
-def load_project(ctx):
+def load_project_graph(ctx):
     log = ctx["log"]
 
     # build a project file name
@@ -140,9 +141,10 @@ def load_project(ctx):
     project_file_path = os.path.abspath(os.path.expandvars(project_file_path))
 
     begin = time.perf_counter()
-    project = di_project.load_project(project_file_path, ctx["build_target"], log)
+    project_graph = di_project.load_project_graph(project_file_path, ctx["build_target"], log)
     end = time.perf_counter()
     log.log(di_log.VERBOSITY.INFO, "project loaded in %.03f seconds" % (end - begin))
+    return project_graph
 
 
 def main():
@@ -169,9 +171,11 @@ def main():
     load_build_settings(ctx)
 
     # build a project graph
-    load_project(ctx)
+    project_graph = load_project_graph(ctx)
 
     # start building
-
+    fusion_core = di_build_fusion_core.BuildFusionCore(project_graph,
+        ctx["build_settings"], log)
+    fusion_core.build()
 
 main()
