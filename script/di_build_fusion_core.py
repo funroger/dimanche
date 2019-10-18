@@ -8,8 +8,8 @@ import threading
 
 
 class BuildFusionCore:
-    def __init__(self, build_settings: BuildSettings,
-        project_graph: Project, log: Log):
+    def __init__(self, project_graph: Project, build_settings: BuildSettings,
+        log: Log):
         self.build_settings = build_settings
         self.project_graph = project_graph
         self.log = log
@@ -50,9 +50,9 @@ class BuildFusionCore:
 
 
     def __create_action_list(self):
-        for dependency in self.project_graph.dependency:
+        for dependency in self.project_graph.dependencies:
             self.action_list.append(dependency)
-        self.action_list.append(project_graph)
+        self.action_list.append(self.project_graph)
 
 
     class __Job:
