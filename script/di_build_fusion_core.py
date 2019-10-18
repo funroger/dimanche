@@ -13,9 +13,11 @@ class BuildFusionCore:
         self.build_settings = build_settings
         self.project_graph = project_graph
         self.log = log
+        self.action_list = []
 
     def build(self):
-        # create an action graph
+        # create an action list
+        self.__create_action_list()
 
         # spawn threads
         self.calls = 0
@@ -37,14 +39,20 @@ class BuildFusionCore:
 
         self.log.log(VERBOSITY.MESSAGE, "BUILD COMPLETE")
 
+
     def __thread_proc(self, thread_id: int):
         job = self.__get_job()
         while job:
-            self.__complete_job(job)
             job.do()
-            print("[%s] %s" % (str(thread_id), job.desc()))
+            self.__complete_job(job)
             job = self.__get_job()
         print("Thread %s exited" % str(thread_id))
+
+
+    def __create_action_list(self):
+        for dependency in self.project_graph.dependency:
+            self.action_list.append(dependency)
+        self.action_list.append(project_graph)
 
 
     class __Job:
@@ -53,6 +61,7 @@ class BuildFusionCore:
 
         def do(self):
             a = 0
+
         def desc(self):
             return "Just a job"
 
@@ -63,6 +72,7 @@ class BuildFusionCore:
 
         def do(self):
             a = 0
+
         def desc(self):
             return "C job"
 
@@ -73,6 +83,7 @@ class BuildFusionCore:
 
         def do(self):
             a = 0
+
         def desc(self):
             return "CPP job"
 
@@ -87,14 +98,6 @@ class BuildFusionCore:
         self.lock.acquire()
 
         job = None
-        if 12 > self.calls:
-            if 0 == self.calls % 3:
-                job = self.__Job()
-            elif 1 == self.calls % 3:
-                job = self.__Job_c()
-            elif 2 == self.calls % 3:
-                job = self.__Job_cpp()
-            self.calls += 1
 
         self.lock.release()
         return job
