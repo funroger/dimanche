@@ -162,11 +162,16 @@ def main():
     ctx["log"] = log
     log.log(di_log.VERBOSITY.MAX, ctx)
 
-    log.log(di_log.VERBOSITY.INFO, "output root %s" % ctx["args"].output_root)
+    output_root = ctx["args"].output_root
+    target_os = ctx["args"].target_os
+    target_platform = ctx["args"].target_platform
+    target_config = ctx["args"].target_config
+
+    log.log(di_log.VERBOSITY.INFO, "output root %s" % output_root)
     log.log(di_log.VERBOSITY.INFO, "source root %s" % ctx["args"].source_root)
-    log.log(di_log.VERBOSITY.INFO, "target os %s" % ctx["args"].target_os)
-    log.log(di_log.VERBOSITY.INFO, "target platform %s" % ctx["args"].target_platform)
-    log.log(di_log.VERBOSITY.INFO, "target configuration %s" % ctx["args"].target_config)
+    log.log(di_log.VERBOSITY.INFO, "target os %s" % target_os)
+    log.log(di_log.VERBOSITY.INFO, "target platform %s" % target_platform)
+    log.log(di_log.VERBOSITY.INFO, "target configuration %s" % target_config)
 
     load_build_settings(ctx)
 
@@ -175,6 +180,7 @@ def main():
 
     # start building
     fusion_core = di_build_fusion_core.BuildFusionCore(project_graph,
+        output_root, target_os, target_platform, target_config,
         ctx["build_settings"], log)
     fusion_core.build()
 

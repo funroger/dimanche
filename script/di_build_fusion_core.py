@@ -2,18 +2,27 @@
 
 from di_build_settings import BuildSettings
 from di_log import Log, VERBOSITY
-from di_project import Project
+import di_platform
+from di_project import Project, get_project_dir
 import multiprocessing
+import os
 import threading
 
 
 class BuildFusionCore:
-    def __init__(self, project_graph: Project, build_settings: BuildSettings,
-        log: Log):
-        self.build_settings = build_settings
+    def __init__(self, project_graph: Project,
+        output_root: str, target_os: str, target_platform: str, target_config: str,
+        build_settings: BuildSettings, log: Log):
         self.project_graph = project_graph
+        # create an output root
+        path = os.path.join(output_root, target_os, target_platform, target_config)
+        self.output_root = di_platform.expand_path(path)
+        self.build_settings = build_settings
         self.log = log
         self.action_list = []
+
+        self.__create_path(self.output_root)
+
 
     def build(self):
         # create an action list
@@ -40,6 +49,29 @@ class BuildFusionCore:
         self.log.log(VERBOSITY.MESSAGE, "BUILD COMPLETE")
 
 
+    def __create_path(self, path: str):
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+
+    def __create_action_list(self):
+
+        project_output_path = self.__get_project_output_path(self.project_graph.path)
+        self.__create_path(project_output_path)
+
+        for dependency in self.project_graph.dependencies:
+            self.action_list.append(dependency)
+        self.action_list.append(self.project_graph)
+
+
+    def __get_project_output_path(self, project_path: str):
+        project_output_path = self.output_root
+        path_parts = os.path.normpath(get_project_dir(project_path)).split(os.sep)
+        for item in path_parts:
+            project_output_path = os.path.join(project_output_path, item)
+        return project_output_path
+
+
     def __thread_proc(self, thread_id: int):
         job = self.__get_job()
         while job:
@@ -47,12 +79,6 @@ class BuildFusionCore:
             self.__complete_job(job)
             job = self.__get_job()
         print("Thread %s exited" % str(thread_id))
-
-
-    def __create_action_list(self):
-        for dependency in self.project_graph.dependencies:
-            self.action_list.append(dependency)
-        self.action_list.append(self.project_graph)
 
 
     class __Job:
