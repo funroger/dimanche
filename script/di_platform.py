@@ -34,6 +34,10 @@ def execute(command, command_work_dir=None, log=None):
     return result
 
 
+def expand_path(path: str):
+    return os.path.expanduser(os.path.expandvars(path))
+
+
 def os_name():
     os_name = sys.platform
     if "win32" == os_name:
