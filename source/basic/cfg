@@ -1,35 +1,39 @@
 {
-  "variables": {
-    "host:.*": {
+  "variables": [
+    {
       "<public_includes>": [ "include" ],
       "<includes>": [ "include", "header" ]
     },
-    "host:windows": {
+    {
+      "host": "windows"
     },
-    "host:linux|macos": {
+    {
+      "host": "linux|macos"
     }
-  },
+  ],
   "projects": {
     "basic": {
-      "variables": {
-        "host:.*": {
+      "variables": [
+        {
           "<name>": "basic"
         },
-        "host:windows": {
+        {
+          "host": "windows",
           "<cflags>": [ "/O2", "/W4" ],
           "<copy_includes>": [
             "copy include/*.h ../include/",
             "attrib +r ../include/*.*"
           ]
         },
-        "host:linux|macos": {
+        {
+          "host": "linux|macos",
           "<cflags>": [ "-O2", "-Wall" ],
           "<copy_includes>": [
             "cp include/*.h ../include/",
             "chmod u-w ../include/*.*"
           ]
         }
-      },
+      ],
       "dependency": [
         "::hal",
         "../basic/cfg::hal"
@@ -47,99 +51,74 @@
       },
       "build": [
         {
-          "compiler": {
-            "target:.*" : [
-              {
-                "flags": "<cflags>",
-                "include": "<includes>",
-                "source": [
-                  "./**/*.c"
-                ],
-                "toolset": "",
-                "type": "c"
-              },
-              {
-                "flags": "<cflags>",
-                "include": "<includes>",
-                "source": [
-                  "./**/*.c"
-                ],
-                "toolset": "msvc2015",
-                "type": "c"
-              },
-              {
-                "flags": "<cflags>",
-                "include": "<includes>",
-                "source": [
-                  "./**/*.cpp"
-                ],
-                "toolset": "",
-                "type": "cpp"
-              }
-            ],
-            "target:.*x86.*": [
-              {
-                "flags": "",
-                "source": [
-                  "source/x86/*.asm"
-                ],
-                "toolset": "yasm",
-                "type": "asm"
-              },
-              {
-                "flags": "<cflags>",
-                "include": "<includes>",
-                "source": [
-                  "source/x86/*.c"
-                ],
-                "toolset": "",
-                "type": "c"
-              }
-            ],
-            "target:.*arm.*" : [
-              {
-                "flags": [ "-march=armv7-a", "<cflags>" ],
-                "include": "<includes>",
-                "source": [
-                  "source/arm/*.c"
-                ],
-                "toolset": "",
-                "type": "c"
-              }
-            ]
-          }
+          "flags": "<cflags>",
+          "include": "<includes>",
+          "source": [
+            "./**/*.c"
+          ],
+          "tool": "c"
         },
         {
-          "linker": {
-            "target:.*": [
-              {
-                "input": [],
-                "output": "<name>",
-                "type": "static"
-              }
-            ]
-          }
+          "flags": "<cflags>",
+          "include": "<includes>",
+          "source": [
+            "./**/*.c"
+          ],
+          "tool": "c",
+          "toolset": "msvc2015"
         },
         {
-          "shell": {
-            "target:.*": [
-              {
-                "command": "<copy_includes>"
-              }
-            ],
-            "target:.*arm.*": [
-              {
-                "command": "<copy_includes>"
-              }
-            ]
-          }
+          "flags": "<cflags>",
+          "include": "<includes>",
+          "source": [
+            "./**/*.cpp"
+          ],
+          "tool": "cpp"
+        },
+        {
+          "flags": "",
+          "source": [
+            "source/x86/*.asm"
+          ],
+          "target": ".*x86.*",
+          "tool": "asm",
+          "toolset": "yasm"
+        },
+        {
+          "flags": "<cflags>",
+          "include": "<includes>",
+          "source": [
+            "source/x86/*.c"
+          ],
+          "target": ".*x86.*",
+          "tool": "c"
+        },
+        {
+          "flags": [ "-march=armv7-a", "<cflags>" ],
+          "include": "<includes>",
+          "source": [
+            "source/arm/*.c"
+          ],
+          "target": ".*arm.*",
+          "tool": "c"
+        },
+        {
+          "input": [],
+          "output": "<name>",
+          "tool": "linker",
+          "type": "static"
+        },
+        {
+          "command": "<copy_includes>",
+          "tool" : "shell"
         }
       ]
     },
     "hal": {
+      "comment": "pseudo-project",
       "dependency": [],
       "public": {},
-      "build": {}
+      "build": []
     }
   }
 }

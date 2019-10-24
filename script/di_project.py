@@ -70,7 +70,8 @@ def __build_project_graph(project_path: str, target: str,
     project = __load_project(project_path, target,
         project_files_cache, project_cache, log)
 
-    dependencies = project.settings["dependency"]
+
+    dependencies = project.settings.get("dependency", [])
     if dependencies:
         log.log(di_log.VERBOSITY.INFO, "loading project '%s' dependencies" % project_name)
 
@@ -237,24 +238,34 @@ def __expand_variables_list(obj: list, variables: dict, log: di_log.Log = None):
                 obj[x] = value
 
 
-def __update_variables(existing_variables: dict, more_variables: dict):
-    host = di_platform.os_name()
-    variables = existing_variables.copy()
-
-    for key, value in more_variables.items():
-        if re.match(key, host): variables = dict(variables, **value)
-    return variables
-
-
 def __filter(settings, target: str, host: str):
     if dict == type(settings):
-        if ("host" in settings and not re.match(settings["host"], host) or \
-            ("target" in settings and not re.match(settings["target"], target))):
+        if False == __match_host_and_target(settings, host, target):
             settings.clear()
         else:
             if "host" in settings: settings.pop("host")
             if "target" in settings: settings.pop("target")
             for key in settings: __filter(settings[key], target, host)
+            empty_keys = [key for key, value in settings.items() if not value]
+            for key in empty_keys: del settings[key]
     elif list == type(settings):
         for item in settings: __filter(item, target, host)
         while {} in settings: settings.remove({})
+        while [] in settings: settings.remove([])
+
+
+def __match_host_and_target(settings: dict, host, target):
+    if ("host" in settings and not re.match(settings["host"], host) or \
+       ("target" in settings and not re.match(settings["target"], target))):
+        return False
+    else:
+        return True
+
+
+def __update_variables(existing_variables: dict, more_variables: dict):
+    host = di_platform.os_name()
+    variables = existing_variables.copy()
+
+    for item in more_variables:
+        variables = dict(variables, **item)
+    return variables
