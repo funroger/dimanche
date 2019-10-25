@@ -56,7 +56,7 @@ class BuildFusionCore:
 
     def __create_action_list(self):
 
-        project_output_path = self.__get_project_output_path(self.project_graph.path)
+        project_output_path = self.__get_project_output_path(self.project_graph)
         self.__create_path(project_output_path)
 
         for dependency in self.project_graph.dependencies:
@@ -64,9 +64,9 @@ class BuildFusionCore:
         self.action_list.append(self.project_graph)
 
 
-    def __get_project_output_path(self, project_path: str):
+    def __get_project_output_path(self, project: Project):
         project_output_path = self.output_root
-        path_parts = os.path.normpath(get_project_dir(project_path)).split(os.sep)
+        path_parts = os.path.normpath(project.dir()).split(os.sep)
         for item in path_parts:
             project_output_path = os.path.join(project_output_path, item)
         return project_output_path
@@ -78,7 +78,7 @@ class BuildFusionCore:
             job.do()
             self.__complete_job(job)
             job = self.__get_job()
-        print("Thread %s exited" % str(thread_id))
+        self.log.log(VERBOSITY.INFO, "Thread %s exited" % str(thread_id))
 
 
     class __Job:

@@ -28,6 +28,9 @@ class Project:
         r += "]\n}"
         return r
 
+    def dir(self):
+        return get_project_dir(self.path)
+
 
 def get_project_dir(project_path: str):
     return os.path.dirname(get_project_file_path(project_path))

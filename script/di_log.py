@@ -5,6 +5,7 @@
 
 import di_format
 import di_platform
+import threading
 
 # platform specific
 if "windows" == di_platform.os_name():
@@ -60,6 +61,8 @@ def verbosity_to_string(verbosity):
 class Log:
     def __init__(self, verbosity = VERBOSITY.DEFAULT):
         self.verbosity = verbosity
+
+        self.lock = threading.Lock()
         if "windows" == di_platform.os_name():
             colorama.init()
 
@@ -75,4 +78,5 @@ class Log:
                 error_message = di_format.ERROR + ": " + message
             elif VERBOSITY.MESSAGE == level:
                 error_message = di_format.COLOR.LIGHT_WHITE + message + di_format.COLOR.NONE
-            print(error_message)
+            with self.lock:
+                print(error_message)
