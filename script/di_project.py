@@ -13,11 +13,12 @@ class Project:
 
         self.path = project_path
         self.settings = project_settings
-        self.dependencies = []
-        self.visited = 0
+        self.dependants = set()
+        self.dependencies = set()
 
         log.log(di_log.VERBOSITY.INFO, ("project '%s' loaded") % get_project_name(project_path))
         log.log(di_log.VERBOSITY.MAX, self.settings)
+
 
     def __repr__(self):
         r = "Project '%s' {\n" % self.settings["name"]
@@ -28,8 +29,22 @@ class Project:
         r += "]\n}"
         return r
 
+
     def dir(self):
         return get_project_dir(self.path)
+
+
+    def dependants(self):
+        return self.dependants
+
+
+    def dependencies(self):
+        return self.dependencies
+
+
+    def set_dependant(self, dependant):
+        if not dependant in self.dependants:
+            self.dependants.add(dependant)
 
 
 def get_project_dir(project_path: str):
@@ -98,34 +113,36 @@ def __build_project_graph(project_path: str, target: str,
             elif not os.path.isabs(dependency_file_path):
                 # a relative path to a project file
                 dependency_path = os.path.join(project_dir, dependency_file_path)
-                dependency_path = os.path.abspath(dependency_path)
+                dependency_path = di_platform.expand_path(dependency_path)
                 dependency_path += "::" + dependency_name
 
             # check for dependency duplicates,
             duplicate = False
-            for list_item in project.dependencies:
-                if list_item.path == dependency_path:
+            for item in project.dependencies:
+                if item.path == dependency_path:
                     duplicate = True
                     log.log(di_log.VERBOSITY.WARNING, "skip project '%s' - it already loaded" %
                         dependency_name)
                     break
             # if not then load the dependency project
             if False == duplicate:
-                project.dependencies.append(__build_project_graph(dependency_path,
-                    target, project_files_cache, project_cache, log))
+                project_dependency = __build_project_graph(dependency_path,
+                    target, project_files_cache, project_cache, log)
+                project_dependency.set_dependant(project)
+                project.dependencies.add(project_dependency)
 
     return project
 
 
 def __check_for_cycles(project: Project, log: di_log.Log):
 
-    if not 0 == project.visited:
+    if hasattr(project, 'visited'):
         di_platform.exit_on_error("a cycle detected in the project graph", log, __file__)
 
     project.visited = 1
     for dependency in project.dependencies:
         __check_for_cycles(dependency, log)
-    project.visited = 0
+    del project.visited
 
 
 def __load_project(project_path: str, target: str,
@@ -185,7 +202,7 @@ def __expand_source_files_dict(settings: dict, project_dir: str):
             source_files_list = []
             for source_item in value:
                 path = os.path.join(project_dir, source_item)
-                path = os.path.abspath(os.path.expandvars(path))
+                path = di_platform.expand_path(path)
                 for source_file in glob.glob(path, recursive = True):
                     source_files_list.append(source_file)
             settings[key] = source_files_list

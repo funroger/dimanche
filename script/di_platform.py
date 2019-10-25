@@ -35,7 +35,10 @@ def execute(command, command_work_dir=None, log=None):
 
 
 def expand_path(path: str):
-    return os.path.expanduser(os.path.expandvars(path))
+    path = os.path.expandvars(path)
+    path = os.path.expanduser(path)
+    path = os.path.abspath(path)
+    return path
 
 
 def os_name():
