@@ -2,7 +2,7 @@
   "variables": [
     {
       "<public_includes>": [ "include" ],
-      "<includes>": [ "include", "header" ]
+      "<private_includes>": [ "include", "header" ]
     },
     {
       "host": "windows"
@@ -49,18 +49,27 @@
           "static": "<name>"
         }
       },
+      "private": {
+        "c": {
+          "flags": "<cflags>",
+          "include": "<private_includes>"
+        },
+        "cpp": {
+          "flags": "<cflags>",
+          "include": "<private_includes>"
+        },
+        "linker": {
+          "static": "<name>"
+        }
+      },
       "build": [
         {
-          "flags": "<cflags>",
-          "include": "<includes>",
           "source": [
             "./**/*.c"
           ],
           "tool": "c"
         },
         {
-          "flags": "<cflags>",
-          "include": "<includes>",
           "source": [
             "./**/*.c"
           ],
@@ -68,15 +77,12 @@
           "toolset": "msvc2015"
         },
         {
-          "flags": "<cflags>",
-          "include": "<includes>",
           "source": [
             "./**/*.cpp"
           ],
           "tool": "cpp"
         },
         {
-          "flags": "",
           "source": [
             "source/x86/*.asm"
           ],
@@ -85,8 +91,6 @@
           "toolset": "yasm"
         },
         {
-          "flags": "<cflags>",
-          "include": "<includes>",
           "source": [
             "source/x86/*.c"
           ],
@@ -94,7 +98,7 @@
           "tool": "c"
         },
         {
-          "flags": [ "-march=armv7-a", "<cflags>" ],
+          "flags": ["-march=armv7-a"],
           "include": "<includes>",
           "source": [
             "source/arm/*.c"
@@ -117,7 +121,14 @@
     "hal": {
       "comment": "pseudo-project",
       "dependency": [],
-      "public": {},
+      "public": {
+        "c": {
+          "include": [
+            "~/include",
+            "../include"
+          ]
+        }
+      },
       "build": []
     }
   }
