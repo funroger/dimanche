@@ -98,7 +98,7 @@
           "tool": "c"
         },
         {
-          "flags": ["-march=armv7-a"],
+          "flags": [ "-march=armv7-a" ],
           "include": "<includes>",
           "source": [
             "source/arm/*.c"
@@ -113,8 +113,11 @@
           "type": "static"
         },
         {
+          "tool": "sync"
+        },
+        {
           "command": "<copy_includes>",
-          "tool" : "shell"
+          "tool": "shell"
         }
       ]
     },
