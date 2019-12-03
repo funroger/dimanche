@@ -1,8 +1,8 @@
 {
   "variables": [
     {
-      "<public_includes>": [ "include" ],
-      "<private_includes>": [ "include", "header" ]
+      "<public_includes>": [ "inc" ],
+      "<private_includes>": [ "inc", "hdr" ]
     },
     {
       "host": "windows"
@@ -21,7 +21,7 @@
           "host": "windows",
           "<cflags>": [ "/O2", "/W4" ],
           "<copy_includes>": [
-            "copy include/*.h ../include/",
+            "copy inc/*.h ../include/",
             "attrib +r ../include/*.*"
           ]
         },
@@ -29,14 +29,22 @@
           "host": "linux|macos",
           "<cflags>": [ "-O2", "-Wall" ],
           "<copy_includes>": [
-            "cp include/*.h ../include/",
+            "cp inc/*.h ../include/",
             "chmod u-w ../include/*.*"
           ]
         }
       ],
       "dependency": [
-        "::hal",
-        "../basic/cfg::hal"
+        {
+          "input": [
+            "::hal",
+            "../basic/cfg::hal"
+          ]
+        },
+        {
+          "target": ".*debug.*",
+          "input": []
+        }
       ],
       "public": {
         "c": {
@@ -84,7 +92,7 @@
         },
         {
           "source": [
-            "source/x86/*.asm"
+            "src/x86/*.asm"
           ],
           "target": ".*x86.*",
           "tool": "asm",
@@ -92,7 +100,7 @@
         },
         {
           "source": [
-            "source/x86/*.c"
+            "src/x86/*.c"
           ],
           "target": ".*x86.*",
           "tool": "c"
@@ -101,7 +109,7 @@
           "flags": [ "-march=armv7-a" ],
           "include": "<includes>",
           "source": [
-            "source/arm/*.c"
+            "src/arm/*.c"
           ],
           "target": ".*arm.*",
           "tool": "c"

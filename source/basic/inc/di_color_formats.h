@@ -1,8 +1,8 @@
 
 #pragma once
 
-#if !defined(__DI_COLOR_DORMATS_H)
-#define __DI_COLOR_DORMATS_H
+#if !defined(__DI_COLOR_FORMATS_H)
+#define __DI_COLOR_FORMATS_H
 
 #include <di_types.h>
 
@@ -22,4 +22,4 @@ enum class eColorFormat : uint32_t {
 } // namespace image
 } // namespace dimanche
 
-#endif // __DI_COLOR_DORMATS_H
+#endif // __DI_COLOR_FORMATS_H
