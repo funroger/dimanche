@@ -72,51 +72,62 @@
       },
       "build": [
         {
-          "source": [
+          "input": [
             "./**/*.c"
           ],
           "tool": "c"
         },
         {
-          "source": [
+          "input": [
             "./**/*.c"
           ],
           "tool": "c",
           "toolset": "msvc2015"
         },
         {
-          "source": [
+          "input": [
             "./**/*.cpp"
           ],
           "tool": "cpp"
         },
         {
-          "source": [
+          "input": [
             "src/x86/*.asm"
           ],
+          "output": "obj.x86",
           "target": ".*x86.*",
           "tool": "asm",
           "toolset": "yasm"
         },
         {
-          "source": [
+          "input": [
             "src/x86/*.c"
           ],
+          "output": "obj.x86",
           "target": ".*x86.*",
           "tool": "c"
         },
         {
           "flags": [ "-march=armv7-a" ],
           "include": "<includes>",
-          "source": [
+          "input": [
             "src/arm/*.c"
           ],
+          "output": "obj.arm-v7a",
           "target": ".*arm.*",
           "tool": "c"
         },
         {
-          "input": [],
+          "input": ["obj", "obj.x86"],
           "output": "<name>",
+          "target": ".*x86.*",
+          "tool": "linker",
+          "type": "static"
+        },
+        {
+          "input": ["obj", "obj.arm-v7a"],
+          "output": "<name>",
+          "target": ".*arm.*",
           "tool": "linker",
           "type": "static"
         },
