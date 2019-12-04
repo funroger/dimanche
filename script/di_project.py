@@ -8,6 +8,14 @@ import os
 import re
 
 
+# declare constant keys
+KEY_DEPENDENCIES = "dependencies"
+KEY_HOST = "host"
+KEY_PROJECTS = "projects"
+KEY_TARGET = "target"
+KEY_VARIABLES = "variables"
+
+
 class Project:
     def __init__(self, project_path: str, project_settings: dict, log: Log):
 
@@ -72,7 +80,7 @@ def load_project_graph(project_path: str, target: str, log: Log):
     project_files_cache = {}
     project_cache = {}
 
-    project_graph = __build_project_graph(project_path, target,
+    project_graph = __create_project_graph(project_path, target,
         project_files_cache, project_cache, log)
 
     # check the project graph
@@ -82,7 +90,7 @@ def load_project_graph(project_path: str, target: str, log: Log):
     return project_graph
 
 
-def __build_project_graph(project_path: str, target: str,
+def __create_project_graph(project_path: str, target: str,
     project_files_cache: dict, project_cache: dict, log: Log):
 
     project_dir = get_project_dir(project_path)
@@ -96,7 +104,8 @@ def __build_project_graph(project_path: str, target: str,
     project = __load_project(project_path, target,
         project_files_cache, project_cache, log)
 
-    dependencies = project.settings.get("dependency", [])
+    dependencies = set()
+    __parse_dependency_settings(dependencies, project.settings)
     if dependencies:
         log.log(VERBOSITY.INFO, "loading project '%s' dependencies" % project_name)
 
@@ -132,7 +141,7 @@ def __build_project_graph(project_path: str, target: str,
                     break
             # if not then load the dependency project
             if False == duplicate:
-                project_dependency = __build_project_graph(dependency_path,
+                project_dependency = __create_project_graph(dependency_path,
                     target, project_files_cache, project_cache, log)
                 project_dependency.set_dependant(project)
                 project.dependencies.add(project_dependency)
@@ -185,10 +194,10 @@ def __load_project(project_path: str, target: str,
 
     # find the project
     project = {}
-    if "projects" in project_file:
-        for name in project_file["projects"]:
+    if KEY_PROJECTS in project_file:
+        for name in project_file[KEY_PROJECTS]:
             if project_name == name:
-                project_settings = project_file["projects"][name]
+                project_settings = project_file[KEY_PROJECTS][name]
                 project = Project(project_path, project_settings, log)
                 project_cache[project_path] = project
                 break
@@ -228,18 +237,24 @@ def __expand_pathes(settings, project_dir: str, file_type: str, log: Log = None)
 
 
 def __expand_variables(obj, variables: dict, log: Log = None):
+    # a quick find a variable
     if obj in variables:
         if log: log.log(VERBOSITY.MAX, "replace %s -> %s" % (obj, variables[obj]))
         return variables[obj]
-    else:
-        return obj
+    # find a partial update of a string
+    for variable, value in variables.items():
+        if variable in obj:
+            updated = obj.replace(variable, value)
+            if log: log.log(VERBOSITY.MAX, "replace %s -> %s" % (obj, updated))
+            obj = updated
+    return obj
 
 
 def __expand_variables_dict(obj: dict, VARIABLES: dict, log: Log = None):
     variables = VARIABLES
-    if "variables" in obj:
-        variables = __update_variables(variables, obj["variables"])
-        obj.pop("variables")
+    if KEY_VARIABLES in obj:
+        variables = __update_variables(variables, obj[KEY_VARIABLES])
+        obj.pop(KEY_VARIABLES)
 
     for key, value in obj.items():
         if dict == type(value):
@@ -271,8 +286,8 @@ def __filter(settings, target: str, host: str):
         if False == __match_host_and_target(settings, host, target):
             settings.clear()
         else:
-            if "host" in settings: settings.pop("host")
-            if "target" in settings: settings.pop("target")
+            if KEY_HOST in settings: settings.pop(KEY_HOST)
+            if KEY_TARGET in settings: settings.pop(KEY_TARGET)
             for key in settings: __filter(settings[key], target, host)
             empty_keys = [key for key, value in settings.items() if not value]
             for key in empty_keys: del settings[key]
@@ -283,11 +298,22 @@ def __filter(settings, target: str, host: str):
 
 
 def __match_host_and_target(settings: dict, host, target):
-    if ("host" in settings and not re.match(settings["host"], host) or \
-       ("target" in settings and not re.match(settings["target"], target))):
+    if (KEY_HOST in settings and not re.match(settings[KEY_HOST], host) or \
+       (KEY_TARGET in settings and not re.match(settings[KEY_TARGET], target))):
         return False
     else:
         return True
+
+
+def __parse_dependency_settings(dependencies: set, settings):
+    if str == type(settings):
+        dependencies.add(settings)
+    elif list == type(settings):
+        for item in settings:
+            __parse_dependency_settings(dependencies, item)
+    elif dict == type(settings):
+        if KEY_DEPENDENCIES in settings:
+            __parse_dependency_settings(dependencies, settings[KEY_DEPENDENCIES])
 
 
 def __update_variables(existing_variables: dict, more_variables: dict):

@@ -2,7 +2,7 @@
   "variables": [
     {
       "<public_includes>": [ "inc" ],
-      "<private_includes>": [ "inc", "hdr" ]
+      "<private_includes>": [ "inc", "src/inc" ]
     },
     {
       "host": "windows"
@@ -34,18 +34,6 @@
           ]
         }
       ],
-      "dependency": [
-        {
-          "input": [
-            "::hal",
-            "../basic/cfg::hal"
-          ]
-        },
-        {
-          "target": ".*debug.*",
-          "input": []
-        }
-      ],
       "public": {
         "c": {
           "include": "<public_includes>"
@@ -72,27 +60,27 @@
       },
       "build": [
         {
-          "input": [
-            "./**/*.c"
+          "source": [
+            "./src/**/*.c"
           ],
-          "tool": "c"
-        },
-        {
-          "input": [
-            "./**/*.c"
+          "exclude": [
+            "./src/asm/**/*.c"
           ],
           "tool": "c",
           "toolset": "msvc2015"
         },
         {
-          "input": [
+          "source": [
             "./**/*.cpp"
+          ],
+          "exclude": [
+            "./src/asm/**/*.cpp"
           ],
           "tool": "cpp"
         },
         {
-          "input": [
-            "src/x86/*.asm"
+          "source": [
+            "src/asm/x86/**/*.asm"
           ],
           "output": "obj.x86",
           "target": ".*x86.*",
@@ -100,18 +88,26 @@
           "toolset": "yasm"
         },
         {
-          "input": [
-            "src/x86/*.c"
+          "source": [
+            "src/asm/x86/*.c"
           ],
           "output": "obj.x86",
           "target": ".*x86.*",
           "tool": "c"
         },
         {
+          "source": [
+            "src/asm/x86/*.cpp"
+          ],
+          "output": "obj.x86",
+          "target": ".*x86.*",
+          "tool": "cpp"
+        },
+        {
           "flags": [ "-march=armv7-a" ],
           "include": "<includes>",
-          "input": [
-            "src/arm/*.c"
+          "source": [
+            "src/asm/arm/*.c"
           ],
           "output": "obj.arm-v7a",
           "target": ".*arm.*",
@@ -138,20 +134,37 @@
           "command": "<copy_includes>",
           "tool": "shell"
         }
-      ]
+      ],
+      "test": "<name>_test"
     },
-    "hal": {
-      "comment": "pseudo-project",
-      "dependency": [],
-      "public": {
-        "c": {
-          "include": [
-            "~/include",
-            "../include"
+    "basic_test": {
+      "variables": [
+        {
+          "<name>": "basic_test"
+        }
+      ],
+      "dependencies": [
+        "::basic",
+        {
+          "dependencies": [
+            "::basic"
           ]
         }
-      },
-      "build": []
+      ],
+      "build": [
+        {
+          "source": [
+            "./tst/**/*.cpp"
+          ],
+          "tool": "cpp"
+        },
+        {
+          "input": ["obj", "kernel32.lib"],
+          "output": "<name>",
+          "tool": "linker",
+          "type": "executable"
+        }
+      ]
     }
   }
 }
