@@ -16,7 +16,9 @@ enum class eColorFormat : uint32_t {
     UYVY = 3,
     YUY2 = 4,
     YVYU = 5,
-    NV12 = 6
+    NV12 = 6,
+    // total number of color formats
+    NUM
 };
 
 } // namespace image
