@@ -3,6 +3,7 @@
 import di_log
 import os
 import platform
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -15,6 +16,11 @@ def clear() -> None:
     # for mac and linux(here, os.name is 'posix') 
     else: 
         _ = os.system('clear')
+
+
+def delete_file_tree(path: str, log = None) -> None:
+    path = di_platform.expand_path(path)
+    shutil.rmtree(path, ignore_errors = true)
 
 
 def exit_on_error(message: str, modulename: str = None, log = None) -> None:
