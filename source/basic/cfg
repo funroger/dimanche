@@ -135,7 +135,7 @@
           "tool": "shell"
         }
       ],
-      "test": "<name>_test"
+      "test": "::<name>_test"
     },
     "basic_test": {
       "variables": [

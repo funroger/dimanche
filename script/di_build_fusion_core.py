@@ -3,7 +3,8 @@
 from di_build_settings import BuildSettings
 from di_log import Log, VERBOSITY
 import di_platform
-from di_project import Project, get_project_dir
+from di_project import Project
+from di_project_settings import get_project_dir
 import multiprocessing
 import os
 import threading
@@ -66,7 +67,7 @@ class BuildFusionCore:
 
     def __get_project_output_path(self, project: Project):
         project_output_path = self.output_root
-        path_parts = os.path.normpath(project.dir()).split(os.sep)
+        path_parts = os.path.normpath(project.Dir()).split(os.sep)
         for item in path_parts:
             project_output_path = os.path.join(project_output_path, item)
         return project_output_path

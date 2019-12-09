@@ -14,7 +14,7 @@ import time
 
 def parse_parameters(ctx, reset: bool = False):
 
-    defaults = __load_defaults(reset)
+    defaults = _load_defaults(reset)
     default_target = defaults["target"]
 
     # initialize argument parser
@@ -58,7 +58,7 @@ def parse_parameters(ctx, reset: bool = False):
         defaults["toolset"] = args.toolset
         defaults["verbosity"] = args.verbosity
     if "update" == args.defaults or "reset" == args.defaults:
-        __save_defaults(defaults)
+        _save_defaults(defaults)
 
     # save actual values
     ctx["args"] = args
@@ -68,11 +68,11 @@ def parse_parameters(ctx, reset: bool = False):
     ctx["args"].source_root = os.path.expandvars(ctx["args"].source_root)
 
 
-__DEFAULT_SETTINGS_RELATIVE_PATH = os.path.split(__file__)[1] + \
+_DEFAULT_SETTINGS_RELATIVE_PATH = os.path.split(__file__)[1] + \
     "." + di_platform.os_name() + ".settings"
 
 
-def __load_defaults(reset: bool = False):
+def _load_defaults(reset: bool = False):
     defaults = {}
     os_name = di_platform.os_name()
     platform_name = di_platform.platform_name()
@@ -81,7 +81,7 @@ def __load_defaults(reset: bool = False):
     # try to load a default settings file
     if not reset:
         script_dir = os.path.dirname(__file__)
-        default_settings_path = os.path.join(script_dir, __DEFAULT_SETTINGS_RELATIVE_PATH)
+        default_settings_path = os.path.join(script_dir, _DEFAULT_SETTINGS_RELATIVE_PATH)
         if os.path.exists(default_settings_path) and os.path.isfile(default_settings_path):
             # load defaults from the file
             file = open(default_settings_path)
@@ -102,10 +102,10 @@ def __load_defaults(reset: bool = False):
     return defaults
 
 
-def __save_defaults(defaults: dict):
+def _save_defaults(defaults: dict):
     # open a file with default settings
     script_dir = os.path.dirname(__file__)
-    default_settings_path = os.path.join(script_dir, __DEFAULT_SETTINGS_RELATIVE_PATH)
+    default_settings_path = os.path.join(script_dir, _DEFAULT_SETTINGS_RELATIVE_PATH)
     # save the settings
     file = open(default_settings_path, "w")
     json.dump(defaults, file, indent = 2, separators = (",", ": "), sort_keys = True)
@@ -141,7 +141,8 @@ def load_project_graph(ctx):
     project_file_path = os.path.abspath(os.path.expandvars(project_file_path))
 
     begin = time.perf_counter()
-    project_graph = di_project.load_project_graph(project_file_path, ctx["build_target"], log)
+    project_graph = di_project.load_project_graph(project_file_path,
+        di_platform.os_name(), ctx["build_target"], log)
     end = time.perf_counter()
     log.log(di_log.VERBOSITY.INFO, "project loaded in %.03f seconds" % (end - begin))
     return project_graph
