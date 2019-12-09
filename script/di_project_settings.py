@@ -66,7 +66,7 @@ class ProjectSettingsFactory:
 
         if not os.path.exists(project_file_path) or not os.path.isfile(project_file_path):
             di_platform.exit_on_error("can't find the project file at '%s'" % \
-                project_file_path, self.log, __file__)
+                project_file_path, __file__, self.log)
 
         project_file = {}
 
@@ -95,7 +95,7 @@ class ProjectSettingsFactory:
                 return project_settings
 
         di_platform.exit_on_error("can't find project '%s' in the file '%s'" % \
-            (project_name, project_file_path), self.log, __file__)
+            (project_name, project_file_path), __file__, self.log)
 
 
 def get_project_dir(project_path: str) -> str:

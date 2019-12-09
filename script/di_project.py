@@ -18,7 +18,7 @@ class Project:
         log.log(VERBOSITY.INFO, ("project '%s' created") % self.settings.Name())
         log.log(VERBOSITY.MAX, self.settings.Get())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         r = "Project '%s' {\n" % self.settings.Name()
         r += "    path = %s\n" % self.settings.Path()
         r += "    dependencies ["
@@ -27,30 +27,33 @@ class Project:
         r += "]\n}"
         return r
 
-    def Dependants(self):
+    def Dependants(self) -> set:
         return self.dependants
 
-    def Dependencies(self):
+    def Dependencies(self) -> set:
         return self.dependencies
 
-    def Dir(self):
+    def Dir(self) -> str:
         return get_project_dir(self.settings.Path())
 
-    def PrepareForBuild(self):
+    def PrepareForBuild(self) -> None:
         project_dir = self.Dir()
         # expand include & source lists
         _expand_pathes(self.settings, project_dir, "include", self.log)
         _expand_pathes(self.settings, project_dir, "source", self.log)
 
-    def SetDependant(self, dependant):
+    def SetDependant(self, dependant) -> None:
         if not dependant in self.dependants:
             self.dependants.add(dependant)
 
-    def Settings(self):
+    def Settings(self) -> ProjectSettings:
         return self.settings.Get()
 
 
-def load_project_graph(project_path: str, host: str, target: str, log: Log = None):
+def load_project_graph(project_path: str,
+    host: str,
+    target: str,
+    log: Log = None) -> Project:
 
     project_settings_factory = ProjectSettingsFactory(host, target, log)
     project_cache = {}
@@ -68,7 +71,7 @@ def load_project_graph(project_path: str, host: str, target: str, log: Log = Non
 def _create_project_graph(project_path: str,
     project_settings_factory: ProjectSettingsFactory,
     project_cache: dict,
-    log: Log):
+    log: Log) -> Project:
 
     project_dir = get_project_dir(project_path)
     project_name = get_project_name(project_path)
@@ -114,10 +117,10 @@ def _create_project_graph(project_path: str,
     return project
 
 
-def _check_for_cycles(project: Project, log: Log):
+def _check_for_cycles(project: Project, log: Log) -> None:
 
     if hasattr(project, 'visited'):
-        di_platform.exit_on_error("a cycle detected in the project graph", log, __file__)
+        di_platform.exit_on_error("a cycle detected in the project graph", __file__, log)
 
     project.visited = 1
     for dependency in project.dependencies:
@@ -125,7 +128,7 @@ def _check_for_cycles(project: Project, log: Log):
     del project.visited
 
 
-def _expand_pathes(settings, project_dir: str, file_type: str, log: Log = None):
+def _expand_pathes(settings, project_dir: str, file_type: str, log: Log = None) -> None:
     if dict == type(settings) or list == type(settings):
         for item in settings:
             if dict == type(settings):
@@ -152,7 +155,7 @@ def _expand_pathes(settings, project_dir: str, file_type: str, log: Log = None):
                 _expand_pathes(item, project_dir, file_type, log)
 
 
-def _parse_dependency_settings(dependencies: set, settings):
+def _parse_dependency_settings(dependencies: set, settings) -> None:
     if str == type(settings):
         dependencies.add(settings)
     elif list == type(settings):

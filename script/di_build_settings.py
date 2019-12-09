@@ -11,7 +11,7 @@ class BuildSettings:
 
         if not os.path.exists(build_settings_file_path):
             di_platform.exit_on_error("can't find the build settings file at '%s'" % \
-                build_settings_file_path, log, __file__)
+                build_settings_file_path, __file__, log)
 
         self.path = build_settings_file_path
         build_settings_file = open(self.path)
