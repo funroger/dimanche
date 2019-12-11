@@ -33,7 +33,7 @@ class BuildFusionCore:
         self.calls = 0
         num_cpus = multiprocessing.cpu_count()
         self.lock = multiprocessing.Lock()
-        self.log.log(VERBOSITY.INFO, "%s CPU(s) available" % str(num_cpus))
+        self.log.Log(VERBOSITY.INFO, "%s CPU(s) available" % str(num_cpus))
         self.threads = []
         for thread_id in range(1, num_cpus):
             thread = threading.Thread(target = self.__thread_proc, args = (thread_id, ))
@@ -47,7 +47,7 @@ class BuildFusionCore:
         for thread in self.threads:
             thread.join()
 
-        self.log.log(VERBOSITY.MESSAGE, "BUILD COMPLETE")
+        self.log.Log(VERBOSITY.MESSAGE, "BUILD COMPLETE")
 
 
     def __create_path(self, path: str):
@@ -79,7 +79,7 @@ class BuildFusionCore:
             job.do()
             self.__complete_job(job)
             job = self.__get_job()
-        self.log.log(VERBOSITY.INFO, "Thread %s exited" % str(thread_id))
+        self.log.Log(VERBOSITY.INFO, "Thread %s exited" % str(thread_id))
 
 
     class __Job:

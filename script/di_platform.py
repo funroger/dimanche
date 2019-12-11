@@ -26,8 +26,8 @@ def delete_file_tree(path: str, log = None) -> None:
 def exit_on_error(message: str, modulename: str = None, log = None) -> None:
     if None != log:
         if None != modulename:
-            log.log(di_log.VERBOSITY.INFO, modulename + ":")
-        log.log(di_log.VERBOSITY.ERROR, message)
+            log.Log(di_log.VERBOSITY.INFO, modulename + ":")
+        log.Log(di_log.VERBOSITY.ERROR, message)
     sys.exit()
 
 
@@ -36,7 +36,7 @@ def execute(command, command_work_dir: str = None, log = None) -> str:
         stderr = subprocess.STDOUT, universal_newlines = True,
         cwd = command_work_dir).stdout
     if None != log:
-        log.log(di_log.VERBOSITY.INFO, result)
+        log.Log(di_log.VERBOSITY.INFO, result)
     return result
 
 

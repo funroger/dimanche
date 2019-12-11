@@ -126,9 +126,9 @@ def load_build_settings(ctx):
     build_settings = di_build_settings.load_build_settings(build_settings_file_path, log)
     ctx["build_target"] = build_target
     ctx["build_settings"] = build_settings
-    log.log(di_log.VERBOSITY.MAX, build_settings)
+    log.Log(di_log.VERBOSITY.MAX, build_settings)
 
-    log.log(di_log.VERBOSITY.MESSAGE, "build settings file %s loaded" % build_settings_file_name)
+    log.Log(di_log.VERBOSITY.MESSAGE, "build settings file %s loaded" % build_settings_file_name)
 
 
 def load_project_graph(ctx):
@@ -144,7 +144,7 @@ def load_project_graph(ctx):
     project_graph = di_project.load_project_graph(project_file_path,
         di_platform.os_name(), ctx["build_target"], log)
     end = time.perf_counter()
-    log.log(di_log.VERBOSITY.INFO, "project loaded in %.03f seconds" % (end - begin))
+    log.Log(di_log.VERBOSITY.INFO, "project loaded in %.03f seconds" % (end - begin))
     return project_graph
 
 
@@ -159,20 +159,20 @@ def main():
 
     # create a logging object
     verbosity = ctx["args"].verbosity
-    log = di_log.Log(di_log.string_to_verbosity(verbosity))
+    log = di_log.LogPrint(di_log.string_to_verbosity(verbosity))
     ctx["log"] = log
-    log.log(di_log.VERBOSITY.MAX, ctx)
+    log.Log(di_log.VERBOSITY.MAX, ctx)
 
     output_root = ctx["args"].output_root
     target_os = ctx["args"].target_os
     target_platform = ctx["args"].target_platform
     target_config = ctx["args"].target_config
 
-    log.log(di_log.VERBOSITY.INFO, "output root %s" % output_root)
-    log.log(di_log.VERBOSITY.INFO, "source root %s" % ctx["args"].source_root)
-    log.log(di_log.VERBOSITY.INFO, "target os %s" % target_os)
-    log.log(di_log.VERBOSITY.INFO, "target platform %s" % target_platform)
-    log.log(di_log.VERBOSITY.INFO, "target configuration %s" % target_config)
+    log.Log(di_log.VERBOSITY.INFO, "output root %s" % output_root)
+    log.Log(di_log.VERBOSITY.INFO, "source root %s" % ctx["args"].source_root)
+    log.Log(di_log.VERBOSITY.INFO, "target os %s" % target_os)
+    log.Log(di_log.VERBOSITY.INFO, "target platform %s" % target_platform)
+    log.Log(di_log.VERBOSITY.INFO, "target configuration %s" % target_config)
 
     load_build_settings(ctx)
 

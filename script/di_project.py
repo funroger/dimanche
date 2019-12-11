@@ -15,8 +15,8 @@ class Project:
         self.dependants = set()
         self.dependencies = set()
 
-        log.log(VERBOSITY.INFO, ("project '%s' created") % self.settings.Name())
-        log.log(VERBOSITY.MAX, self.settings.Get())
+        log.Log(VERBOSITY.INFO, ("project '%s' created") % self.settings.Name())
+        log.Log(VERBOSITY.MAX, self.settings.Get())
 
     def __repr__(self) -> str:
         r = "Project '%s' {\n" % self.settings.Name()
@@ -63,7 +63,7 @@ def load_project_graph(project_path: str,
 
     # check the project graph
     _check_for_cycles(project_graph, log)
-    log.log(VERBOSITY.INFO, "project graph checking OK")
+    log.Log(VERBOSITY.INFO, "project graph checking OK")
 
     return project_graph
 
@@ -77,7 +77,7 @@ def _create_project_graph(project_path: str,
     project_name = get_project_name(project_path)
 
     if project_path in project_cache:
-        log.log(VERBOSITY.INFO, "project '%s' loaded from the cache" %
+        log.Log(VERBOSITY.INFO, "project '%s' loaded from the cache" %
             project_name)
         return project_cache[project_path]
 
@@ -87,13 +87,13 @@ def _create_project_graph(project_path: str,
     dependencies = set()
     _parse_dependency_settings(dependencies, project.Settings())
     if dependencies:
-        log.log(VERBOSITY.INFO, "loading project '%s' dependencies" % project_name)
+        log.Log(VERBOSITY.INFO, "loading project '%s' dependencies" % project_name)
 
         project_file_path = get_project_file_path(project_path)
 
         idx = 0
         for dependency in dependencies:
-            log.log(VERBOSITY.INFO, "%s:% 2d: %s" % (project_name, idx, dependency))
+            log.Log(VERBOSITY.INFO, "%s:% 2d: %s" % (project_name, idx, dependency))
             idx += 1
 
             dependency_path = get_relative_project_path(project_path, dependency)
@@ -104,7 +104,7 @@ def _create_project_graph(project_path: str,
             for item in project.dependencies:
                 if item.path == dependency_path:
                     duplicate = True
-                    log.log(VERBOSITY.WARNING, "skip project '%s' - it already loaded" %
+                    log.Log(VERBOSITY.WARNING, "skip project '%s' - it already loaded" %
                         dependency_name)
                     break
             # if not then load the dependency project
@@ -144,7 +144,7 @@ def _expand_pathes(settings, project_dir: str, file_type: str, log: Log = None) 
                         for file_path in glob.glob(path, recursive = True):
                             sub_list.append(file_path)
                         if 0 == len(sub_list):
-                            if log: log.log(VERBOSITY.WARNING, "nothing found at %s" % path)
+                            if log: log.Log(VERBOSITY.WARNING, "nothing found at %s" % path)
                         files_list = files_list + sub_list
                     settings[key] = files_list
                     continue

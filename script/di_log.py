@@ -3,6 +3,7 @@
 # logger uses configuration context as first variable.
 # "log_level" variable sets the detail level of the log.
 
+import abc
 import di_format
 import di_platform
 import threading
@@ -24,7 +25,7 @@ class VERBOSITY:
     DEFAULT = ERROR
 
 
-def string_to_verbosity(string):
+def string_to_verbosity(string) -> VERBOSITY:
     verbosity = VERBOSITY.DEFAULT
     if "max" == string:
         verbosity = VERBOSITY.MAX
@@ -41,7 +42,7 @@ def string_to_verbosity(string):
     return verbosity
 
 
-def verbosity_to_string(verbosity):
+def verbosity_to_string(verbosity: VERBOSITY) -> str:
     string = "UNKNOWN"
     if VERBOSITY.MAX == verbosity:
         string = "max"
@@ -58,18 +59,18 @@ def verbosity_to_string(verbosity):
     return string
 
 
-class Log:
-    def __init__(self, verbosity = VERBOSITY.DEFAULT):
-        self.verbosity = verbosity
+class Log(abc.ABC):
+    def __init__(self):
+        pass
+        self.__echo = None
 
-        self.lock = threading.Lock()
-        if "windows" == di_platform.os_name():
-            colorama.init()
 
-    def __repr__(self):
-        return "Log{verbosity=%s}" % verbosity_to_string(self.verbosity)
+    @abc.abstractmethod
+    def __repr__(self) -> str:
+        return "Log{}"
 
-    def log(self, level, message):
+
+    def Log(self, level: VERBOSITY, message) -> None:
         if level >= self.verbosity:
             error_message = message
             if VERBOSITY.WARNING == level:
@@ -78,5 +79,56 @@ class Log:
                 error_message = di_format.ERROR + ": " + message
             elif VERBOSITY.MESSAGE == level:
                 error_message = di_format.COLOR.LIGHT_WHITE + message + di_format.COLOR.NONE
-            with self.lock:
-                print(error_message)
+            self.Print(str(error_message))
+        if self.__echo: self.__echo.Log(level, message)
+
+
+    @abc.abstractmethod
+    def Print(self, message: str) -> None:
+        pass
+
+
+    def SetEcho(self, echo: Log) -> None:
+        self.__echo = echo
+
+
+class LogPrint(Log):
+    def __init__(self,
+        verbosity: VERBOSITY = VERBOSITY.DEFAULT,
+        echo = None):
+
+        self.verbosity = verbosity
+        super(LogPrint, self).SetEcho(echo)
+
+        self.lock = threading.Lock()
+
+
+    def __repr__(self) -> str:
+        return "LogPrint{verbosity=%s}" % verbosity_to_string(self.verbosity)
+
+
+    def Print(self, message: str) -> None:
+        with self.lock:
+            print(message)
+
+
+class LogFile(Log):
+    def __init__(self,
+        file_path: str,
+        verbosity: VERBOSITY = VERBOSITY.DEFAULT,
+        echo = None):
+
+        self.file = open(di_platform.expand_path(file_path), "w")
+        self.verbosity = verbosity
+        super(LogFile, self).SetEcho(echo)
+
+        self.lock = threading.Lock()
+
+
+    def __repr__(self) -> str:
+        return "LogFile{verbosity=%s}" % verbosity_to_string(self.verbosity)
+
+
+    def Print(self, message: str) -> None:
+        with self.lock:
+            self.file.write(message + "\n")

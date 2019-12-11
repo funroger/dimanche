@@ -80,11 +80,11 @@ class ProjectSettingsFactory:
             _expand_variables_dict(project_file, GLOBAL_VARIABLES, self.log)
 
             self.project_files_cache[project_file_path] = project_file
-            if self.log: self.log.log(VERBOSITY.INFO, "project file '%s' loaded from the file" %
+            if self.log: self.log.Log(VERBOSITY.INFO, "project file '%s' loaded from the file" %
                 project_file_path)
         else:
             project_file = self.project_files_cache[project_file_path]
-            if self.log: self.log.log(VERBOSITY.INFO, "project file '%s' loaded from the cache" %
+            if self.log: self.log.Log(VERBOSITY.INFO, "project file '%s' loaded from the cache" %
                 project_file_path)
 
         # find the project
@@ -135,13 +135,13 @@ def get_relative_project_path(project_path: str, relative_path: str) -> str:
 def _expand_variables(obj, variables: dict, log: Log = None) -> str:
     # a quick find a variable
     if obj in variables:
-        if log: log.log(VERBOSITY.MAX, "replace %s -> %s" % (obj, variables[obj]))
+        if log: log.Log(VERBOSITY.MAX, "replace %s -> %s" % (obj, variables[obj]))
         return variables[obj]
     # find a partial update of a string
     for variable, value in variables.items():
         if variable in obj:
             updated = obj.replace(variable, value)
-            if log: log.log(VERBOSITY.MAX, "replace %s -> %s" % (obj, updated))
+            if log: log.Log(VERBOSITY.MAX, "replace %s -> %s" % (obj, updated))
             obj = updated
     return obj
 

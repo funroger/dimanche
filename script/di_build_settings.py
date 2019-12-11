@@ -24,10 +24,10 @@ class BuildSettings:
                         tool_name = tool["name"]
                         tool_path = tool["path"]
                         if not os.path.exists(tool_path):
-                            log.log(di_log.VERBOSITY.WARNING,
+                            log.Log(di_log.VERBOSITY.WARNING,
                                 "can't find the tool '%s' at '%s'" % \
                                 (tool_name + ":" + tool_type, tool_path))
-                        log.log(di_log.VERBOSITY.MAX, tool_name + ":" + tool_type + ": " + tool_path)
+                        log.Log(di_log.VERBOSITY.MAX, tool_name + ":" + tool_type + ": " + tool_path)
 
     def __repr__(self):
         rep = "BuildSettings {"
