@@ -23,13 +23,12 @@ class ProjectSettings:
         self.path = path
         self.settings = settings
 
-
     def __repr__(self) -> str:
-        r = "{\n"
-        r += self.settings
-        r += "\n}"
+        r = "ProjectSettings {"
+        r += "'path' = '%s',\n" % self.path
+        r += str(self.settings)
+        r += "}"
         return r
-
 
     # get a full path to the test project
     def GetTestProjectPath(self) -> str:
@@ -38,14 +37,11 @@ class ProjectSettings:
         else:
             return ""
 
-
     def Name(self) -> str:
         return get_project_name(self.path)
 
-
     def Path(self) -> str:
         return self.path
-
 
     def Get(self) -> dict:
         return self.settings

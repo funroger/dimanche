@@ -29,15 +29,14 @@ class BuildSettings:
                                 (tool_name + ":" + tool_type, tool_path))
                         log.Log(di_log.VERBOSITY.MAX, tool_name + ":" + tool_type + ": " + tool_path)
 
-    def __repr__(self):
-        rep = "BuildSettings {"
-        rep += "path='%s'" % self.path
-        for k, v in self.properties.items():
-            rep += ", %s='%s'" % (k, v)
-        rep += "}"
-        return rep
+    def __repr__(self) -> str:
+        r = "BuildSettings {"
+        r += "'path' = '%s',\n" % self.path
+        r += str(self.properties)
+        r += "}"
+        return r
 
 
-def load_build_settings(build_settings_file_path: str, log: di_log.Log):
+def load_build_settings(build_settings_file_path: str, log: di_log.Log) -> BuildSettings:
     settings = BuildSettings(build_settings_file_path, log)
     return settings

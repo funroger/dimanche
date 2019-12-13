@@ -16,15 +16,15 @@ class Project:
         self.dependencies = set()
 
         log.Log(VERBOSITY.INFO, ("project '%s' created") % self.settings.Name())
-        log.Log(VERBOSITY.MAX, self.settings.Get())
+        log.Log(VERBOSITY.MAX, str(self.settings))
 
     def __repr__(self) -> str:
-        r = "Project '%s' {\n" % self.settings.Name()
-        r += "    path = %s\n" % self.settings.Path()
-        r += "    dependencies ["
+        r = "Project '%s' {" % self.settings.Name()
+        r += "'path' = '%s',\n" % self.settings.Path()
+        r += "dependencies ["
         for dependency in self.dependencies:
             r += " " + dependency.settings.Name()
-        r += "]\n}"
+        r += "]}"
         return r
 
     def Dependants(self) -> set:
