@@ -21,8 +21,8 @@
           "host": "windows",
           "<cflags>": [ "/O2", "/W4" ],
           "<copy_includes>": [
-            "copy inc/*.h ../include/",
-            "attrib +r ../include/*.*"
+            "copy inc\*.h ..\inc\",
+            "attrib +r ..\inc\*.*"
           ]
         },
         {
