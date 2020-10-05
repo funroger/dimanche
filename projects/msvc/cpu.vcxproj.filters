@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="inc">
+      <UniqueIdentifier>{b8bb8cc8-0899-45a0-b88c-195dd7530729}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{a0dafdf6-2fdd-4395-b0ea-8e9e3212b98e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\asm">
+      <UniqueIdentifier>{aa088e8e-3dc0-4d16-8fcb-2fe70f8d6d64}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\dimanche\cpu\cpu.h" />
+    <ClInclude Include="..\..\dimanche\cpu\intrinsics.h" />
+    <ClInclude Include="..\..\dimanche\cpu\inc\cpu_internal.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\dimanche\cpu\src\cpu.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dimanche\cpu\src\get_type.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\dimanche\cpu\asm_defs.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\dimanche\cpu\src\asm\get_type.x86.asm">
+      <Filter>src\asm</Filter>
+    </CustomBuild>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="inc">
+      <UniqueIdentifier>{fd18cf7e-13e6-4524-94bc-809d396a7f04}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\dimanche\basic\color_formats.h" />
+    <ClInclude Include="..\..\dimanche\basic\image.h" />
+    <ClInclude Include="..\..\dimanche\basic\result.h" />
+    <ClInclude Include="..\..\dimanche\basic\types.h" />
+    <ClInclude Include="..\..\dimanche\basic\resource.h" />
+    <ClInclude Include="..\..\dimanche\basic\image_allocator.h" />
+    <ClInclude Include="..\..\dimanche\basic\video_decoder.h" />
+    <ClInclude Include="..\..\dimanche\basic\video_sample.h" />
+    <ClInclude Include="..\..\dimanche\basic\video_stream_info.h" />
+    <ClInclude Include="..\..\dimanche\basic\media_sample.h" />
+    <ClInclude Include="..\..\dimanche\basic\image_format.h" />
+    <ClInclude Include="..\..\dimanche\basic\platform.h" />
+    <ClInclude Include="..\..\dimanche\basic\memory.h" />
+    <ClInclude Include="..\..\dimanche\basic\templates.h" />
+    <ClInclude Include="..\..\dimanche\basic\assert.h" />
+    <ClInclude Include="..\..\dimanche\basic\splitter.h" />
+    <ClInclude Include="..\..\dimanche\basic\container_type.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\dimanche\basic\src\video_decoder.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dimanche\basic\src\image.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dimanche\basic\src\image_allocator.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dimanche\basic\src\memory.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dimanche\basic\src\container_type.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
