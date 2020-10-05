@@ -2,7 +2,7 @@
 
 SET SRC_FILE=%2
 SET DST_FILE=%3\%~n2.obj
-SET DIMANCHE=%~dp\..\..\..
+SET DIMANCHE=%~dp0..\..
 SET NASM=%DIMANCHE%\tools\win\nasm.exe
 
 SET DEBUG_FORMAT=
