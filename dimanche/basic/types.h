@@ -1,14 +1,19 @@
 
 #pragma once
 
-#if !defined(__DI_TYPES_H)
-#define __DI_TYPES_H
+#if !defined(__DIMANCHE_BASIC_TYPES_H)
+#define __DIMANCHE_BASIC_TYPES_H
+
+#include <dimanche/basic/platform.h>
 
 #include <cstddef>
 #include <cstdint>
 #include <utility>
 
 namespace dimanche {
+
+// declare handle type
+typedef struct _handle_t *handle;
 
 template <typename parameter_t>
 class Dimension
@@ -22,11 +27,16 @@ public:
     Dimension(const data_t width, const data_t height) :
         m_width(width),
         m_height(height) {}
-    Dimension(const Dimension && right) :
-        m_width(right.Width()),
-        m_height(right.Height()) {}
+    Dimension(const Dimension<data_t> & right) {
+        operator = (right);}
+    Dimension(const Dimension<data_t> && right) {
+        operator = (right);}
 
-    // assign operator
+    // assignment operators
+    inline
+    Dimension<data_t> & operator = (const Dimension<data_t> & right) {
+        return operator = ((const Dimension<data_t> &&) right);
+    }
     inline
     Dimension<data_t> & operator = (const Dimension<data_t> && right) {
         m_width = right.Width();
@@ -42,11 +52,11 @@ public:
 
     // compare operators
     inline
-    bool operator == (const MotionVector<data_t> && right) const {
+    bool operator == (const Dimension<data_t> && right) const {
         return ((Width() == right.Width()) && (Height() == right.Height()));
     }
     inline
-    bool operator != (const MotionVector<data_t> && right) const {
+    bool operator != (const Dimension<data_t> && right) const {
         return !operator == (right);
     }
 
@@ -62,6 +72,16 @@ private:
 };
 using dim_t = Dimension<uint32_t>;
 
+template<typename data_t> inline
+bool operator == (const Dimension<data_t> &left, const Dimension<data_t> &right) {
+    return ((left.Width() == right.Width()) &&
+        (left.Height() == right.Height()));
+}
+
+template<typename data_t> inline
+bool operator != (const Dimension<data_t> &left, const Dimension<data_t> &right) {
+    return !(left == right);
+}
 
 template <typename parameter_t>
 class MotionVector
@@ -144,4 +164,4 @@ MotionVector<result_t>  operator - (const MotionVector<data_t> && left,
 
 } // namespace dimanche
 
-#endif // __DI_TYPES_H
+#endif // __DIMANCHE_BASIC_TYPES_H
