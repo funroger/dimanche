@@ -141,4 +141,9 @@ void ResetState(void);
 } // namespace system
 } // namespace dimanche
 
+// declare the library name
+#if defined(_WINDOWS)
+#pragma comment (lib, "cpu")
+#endif // defined(_WINDOWS)
+
 #endif // !defined(__DIMANCHE_CPU_CPU_H)
