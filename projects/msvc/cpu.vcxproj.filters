@@ -17,6 +17,7 @@
     <ClInclude Include="..\..\dimanche\cpu\inc\cpu_internal.h">
       <Filter>inc</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\dimanche\cpu\cpu_opt.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dimanche\cpu\src\cpu.cpp">

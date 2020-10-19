@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\dimanche\cpu\cpu.h" />
+    <ClInclude Include="..\..\dimanche\cpu\cpu_opt.h" />
     <ClInclude Include="..\..\dimanche\cpu\inc\cpu_internal.h" />
     <ClInclude Include="..\..\dimanche\cpu\intrinsics.h" />
   </ItemGroup>
@@ -93,19 +94,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">
-    <OutDir>..\..\_bin\msvc$(VisualStudioVersion)\$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir>..\..\_bin\msvc$(VisualStudioVersion)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\..\_bin\msvc$(VisualStudioVersion)\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|Win32'">
-    <OutDir>..\..\_bin\msvc$(VisualStudioVersion)\$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir>..\..\_bin\msvc$(VisualStudioVersion)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\..\_bin\msvc$(VisualStudioVersion)\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'">
-    <OutDir>..\..\_bin\msvc$(VisualStudioVersion)\$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir>..\..\_bin\msvc$(VisualStudioVersion)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\..\_bin\msvc$(VisualStudioVersion)\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'">
-    <OutDir>..\..\_bin\msvc$(VisualStudioVersion)\$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir>..\..\_bin\msvc$(VisualStudioVersion)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>..\..\_bin\msvc$(VisualStudioVersion)\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">
@@ -115,7 +116,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(DISDK)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -130,7 +131,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(DISDK)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -146,7 +147,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(DISDK)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -166,7 +167,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(DISDK)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
