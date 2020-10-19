@@ -34,7 +34,7 @@ enum class eCpuType : uint32_t {
     sse2 = (1 << 4) | sse,
     // SSE3 technology featured CPU (Pentium 4 Prescott, Athlon 64 Venice)
     sse3 = (1 << 5) | sse2,
-    // Supplemental SSE3 technology featured CPU (Core 2 Conroe)
+    // supplemental SSE3 technology featured CPU (Core 2 Conroe)
     sse3s = (1 << 6) | sse3,
     // FMA technology featured CPU (Core iX Haswell or Broadwell)
     fma = (1 << 7),
@@ -42,21 +42,21 @@ enum class eCpuType : uint32_t {
     sse41 = (1 << 8) | sse3s,
     // SSE4.2 technology featured CPU (Core iX Nehalem)
     sse42 = (1 << 9) | sse41,
-    // Advanced bit manipulation featured CPU (AMD Barcelona core)
+    // advanced bit manipulation featured CPU (AMD Barcelona core)
     abm = (1 << 10),
     // AES technology featured CPU (Core iX Clarkdale, except some i3)
     aes = (1 << 11),
     // AVX technology featured CPU (Core iX SandyBridge or IvyBridge)
     avx = (1 << 12) | sse42,
-    // AVX technology featured CPU (Core iX IvyBridge)
+    // RAND technology featured CPU (Core iX IvyBridge)
     rdrand = (1 << 13),
-    // Bit manipulation instruction set featured CPU (Core iX Haswell or Broadwell)
+    // bit manipulation instruction set featured CPU (Core iX Haswell or Broadwell)
     bmi = (1 << 14) | abm,
     // AVX2 technology featured CPU (Core iX Haswell or Broadwell)
     avx2 = (1 << 15) | avx,
-    // Bit manipulation instruction set 2 (Core iX Haswell or Broadwell)
+    // bit manipulation instruction set 2 (Core iX Haswell or Broadwell)
     bmi2 = (1 << 16) | bmi,
-    // Enhanced rep movsb/stosb (Core iX SandyBridge)
+    // enhanced rep movsb/stosb (Core iX SandyBridge)
     erms = (1 << 17),
     // AVX512 foundation technology featured CPU (Core iX Skylake or Cannonlake)
     avx512f = (1 << 18) | avx2,
@@ -64,7 +64,7 @@ enum class eCpuType : uint32_t {
     avx512bw = (1 << 19) | avx512f,
     // AVX512 dword & qword technology featured CPU (Core iX Skylake or Cannonlake)
     avx512dq = (1 << 20) | avx512bw,
-    // maximum support tech id is (1 << 23)
+    // maximum support tech id is (1 << 29)
 
     // CPU with SSE technology (Pentium III)
     katmai = Intel | sse,
