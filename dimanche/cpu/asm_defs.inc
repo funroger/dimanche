@@ -175,6 +175,12 @@ default rel
 
 %macro DECL_ARGS 0-*
 
+    %ifndef _decl_args_second_declaration
+        %define _decl_args_second_declaration
+    %else
+        %warning it's not recommended to have 2 DECL_ARGS in one file.
+    %endif
+
     ; parameters are: for every argument TYPE + name
     ; ex. PTR, pSrc, SIZE_T, size, WORD, value
 

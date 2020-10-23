@@ -127,4 +127,30 @@
         function_t *p = init_pointer<impl, &p, 0>; \
     } /* namespace function_name##_disp */
 
+
+#define IMPL_PROC_3(function, type0, type1, type2) \
+    /* declare optimized functions */ \
+    extern "C" \
+    { \
+        function##_disp::function_t function##_c; \
+        function##_disp::function_t function##_##type0##_asm; \
+        function##_disp::function_t function##_##type1##_asm; \
+        function##_disp::function_t function##_##type2##_asm; \
+    } \
+    /* implement function's stuff */ \
+    namespace function##_disp \
+    { \
+        /* implement the implementation table */ \
+        const struct impl_table_t impl::table[] = { \
+            {cpu_t::plain, &function##_c}, \
+            {cpu_t::type0, &function##_##type0##_asm}, \
+            {cpu_t::type1, &function##_##type1##_asm}, \
+            {cpu_t::type2, &function##_##type2##_asm}, \
+        }; \
+        /* implement the implementation table size */ \
+        const size_t impl::size = sizeof(impl::table) / sizeof(impl::table[0]); \
+        /* implement the function pointer */ \
+        function_t *p = init_pointer<impl, &p, 0>; \
+    } /* namespace function_name##_disp */
+
 #endif // !defined(__DIMANCHE_CPU_CPU_OPT_H)
