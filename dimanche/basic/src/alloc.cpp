@@ -95,8 +95,9 @@ void aligned_free(void * const p)
 
 } // void aligned_free(void *p)
 
-void del(void *) {
-}
+// retirement may be off to save some clocks.
+// in real life it slows down execution a bit, but keeps the heap from growing.
+#define RETIRE 0
 
 class CBasicAllocator : public IAllocator
 {
@@ -110,27 +111,39 @@ public:
         const uint32_t log2Alignment = (uint32_t) eLog2Alignment::DEFAULT) override {
         std::unique_lock<std::mutex> lock(m_guard);
 
-        auto iter = m_free.lower_bound(size);
-
         // try to re-use a memory region
-        while (m_free.end() != iter) {
-            const size_t memSize = iter->first;
-            void * const p = iter->second;
+        {
+            auto iter = m_free.lower_bound(size);
 
-            // available pieces are too big (allow only 1/8 bigger)
-            if (memSize * 8 > size * 9) {
-                break;
+            while (m_free.end() != iter) {
+                const size_t memSize = iter->first;
+                MEM_REGION &mem = *(iter->second);
+
+                // available pieces are too big (allow only 1/8 bigger)
+                if (memSize * 8 > size * 9) {
+                    break;
+                }
+
+                if (IsAligned(mem.get(), log2Alignment)) {
+
+                    mem.State(MEM_REGION::eState::IN_USE);
+                    m_free.erase(iter);
+#if RETIRE
+                    auto timeIter = m_accessTimes.lower_bound(mem.LastAccessTime());
+                    while (m_accessTimes.end() != timeIter) {
+                        if (&mem == timeIter->second) {
+                            m_accessTimes.erase(timeIter);
+                            break;
+                        }
+                        ++timeIter;
+                    }
+#endif // RETIRE
+                    return std::unique_ptr<void, deleter_t> (mem.get(),
+                        [=](void *p ){this->Free(p);});
+                }
+
+                ++iter;
             }
-
-            if (IsAligned(p, log2Alignment)) {
-                m_free.erase(iter);
-                m_all[p].State(MEM_REGION::eState::IN_USE);
-
-                return std::unique_ptr<void, deleter_t> (p,
-                    [=](void *p ){this->Free(p);});
-            }
-
-            ++iter;
         }
 
         // need to allocate one more memory region
@@ -166,20 +179,29 @@ public:
         if (MEM_REGION::eState::FREE == mem.State()) {
             return;
         }
-
-        const auto size = mem.Size();
-        const auto curTime = timer_t::now();
-
-        // update the memory piece
-        mem.LastAccessTime(curTime);
         mem.State(MEM_REGION::eState::FREE);
 
-        m_free.insert({size, p});
+        // update containers
+        const auto size = mem.Size();
+        m_free.insert({size, &mem});
+#if RETIRE
+        const auto curTime = timer_t::now();
+        const auto lastAccessTime = mem.LastAccessTime();
+
+        mem.LastAccessTime(curTime);
+        m_accessTimes.insert({curTime, &mem});
+
+        Retire();
+#endif // RETIRE
     }
 
 private:
 
+#if RETIRE
     using timer_t = std::chrono::high_resolution_clock;
+
+    constexpr static std::chrono::duration<double> retireTime {1.0};
+#endif // RETIRE
 
     struct MEM_REGION {
         enum class eState : uint32_t {
@@ -197,10 +219,12 @@ private:
         inline
         size_t Size() const {return m_size;}
 
+#if RETIRE
         inline
         void LastAccessTime(const timer_t::time_point time) {m_lastAccessTime = time;}
         inline
         timer_t::time_point LastAccessTime() const {return m_lastAccessTime;}
+#endif // RETIRE
 
         inline
         void State(const eState state) {m_state = state;}
@@ -210,16 +234,48 @@ private:
     private:
         std::unique_ptr<void, deallocator> m_p;
         size_t m_size = 0;
+#if RETIRE
         timer_t::time_point m_lastAccessTime;
+#endif // RETIRE
         eState m_state = eState::FREE;
     };
+
+#if RETIRE
+    void Retire() {
+        const auto curTime = timer_t::now();
+        auto oldest = m_accessTimes.begin();
+
+        const auto oldestAccessTime = oldest->first;
+        const auto &memOldest = *(oldest->second);
+
+         // remove only one item at a time
+
+        const std::chrono::duration<double> timeSinceLastAccess(curTime - oldestAccessTime);
+        if (retireTime < timeSinceLastAccess) {
+            auto iter = m_free.lower_bound(memOldest.Size());
+            while (memOldest.Size() == iter->first) {
+                if (iter->second == &memOldest) {
+                    m_free.erase(iter);
+                    break;
+                }
+            }
+            m_accessTimes.erase(oldest);
+            m_all.erase(memOldest.get());
+        }
+
+    } // void Retire()
+#endif // RETIRE
 
     using mem_region_t = MEM_REGION;
 
     std::mutex m_guard;
 
     // free memory pieces
-    std::multimap<size_t, void *> m_free;
+    std::multimap<size_t, mem_region_t *> m_free;
+#if RETIRE
+    // access timestamps
+    std::multimap<timer_t::time_point, mem_region_t *> m_accessTimes;
+#endif // RETIRE
     // all memory pieces
     std::unordered_map<void *, mem_region_t> m_all;
 };
