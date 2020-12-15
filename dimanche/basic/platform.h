@@ -11,7 +11,7 @@
 #define _WINDOWS
 #endif /* _WINDOWS */
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__APPLE__)
 
 #ifndef _LINUX
 #define _LINUX
@@ -29,13 +29,13 @@
 template <typename ... types_t>
 void UNUSED(types_t ...) {}
 
-#elif defined(_WIN32) || defined(_WIN64)
+#elif defined(_WINDOWS)
 
 #if !defined(UNUSED)
 #define UNUSED(smth) smth
 #endif /* !defined(UNUSED) */
 
-#else /* !(defined(_WIN32) || defined(_WIN64)) */
+#else /* !defined(_WINDOWS) */
 
 #if !defined(UNUSED)
 #define UNUSED(smth) {(void) smth;}
@@ -74,6 +74,22 @@ void UNUSED(types_t ...) {}
 #define __CDECL __cdecl
 #endif /* !defined(__CDECL) */
 
+#elif defined(_M_ARM64) || defined(ARM64) || defined(_ARM64) || \
+    defined(__arm64__) || defined(__aarch64__)
+
+/* declare ARM64 platfrom */
+#ifndef _ARM64
+#define _ARM64
+#endif /* _ARM64 */
+
+#ifndef _64BIT
+#define _64BIT
+#endif /* _64BIT */
+
+#if !defined(__CDECL)
+#define __CDECL
+#endif /* !defined(__CDECL) */
+
 #elif defined(_M_ARM) || defined(ARM) || defined(_ARM) || defined(__arm__)
 
 /* declare ARM platfrom */
@@ -84,21 +100,6 @@ void UNUSED(types_t ...) {}
 #ifndef _32BIT
 #define _32BIT
 #endif /* _32BIT */
-
-#if !defined(__CDECL)
-#define __CDECL
-#endif /* !defined(__CDECL) */
-
-#elif defined(_M_ARM64) || defined(ARM64) || defined(_ARM64) || defined(__arm64__) || defined(__aarch64__)
-
-/* declare ARM64 platfrom */
-#ifndef _ARM64
-#define _ARM64
-#endif /* _ARM64 */
-
-#ifndef _64BIT
-#define _64BIT
-#endif /* _64BIT */
 
 #if !defined(__CDECL)
 #define __CDECL
