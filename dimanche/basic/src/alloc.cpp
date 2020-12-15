@@ -112,37 +112,31 @@ public:
         std::unique_lock<std::mutex> lock(m_guard);
 
         // try to re-use a memory region
-        {
-            auto iter = m_free.lower_bound(size);
+        for (auto iter = m_free.lower_bound(size); iter != m_free.end(); ++iter) {
+            const size_t memSize = iter->first;
+            MEM_REGION &mem = *(iter->second);
 
-            while (m_free.end() != iter) {
-                const size_t memSize = iter->first;
-                MEM_REGION &mem = *(iter->second);
+            // available pieces are too big (allow only 1/8 bigger)
+            if (memSize * 8 > size * 9) {
+                break;
+            }
 
-                // available pieces are too big (allow only 1/8 bigger)
-                if (memSize * 8 > size * 9) {
-                    break;
-                }
+            if (IsAligned(mem.get(), log2Alignment)) {
 
-                if (IsAligned(mem.get(), log2Alignment)) {
-
-                    mem.State(MEM_REGION::eState::IN_USE);
-                    m_free.erase(iter);
+                mem.State(MEM_REGION::eState::IN_USE);
+                m_free.erase(iter);
 #if RETIRE
-                    auto timeIter = m_accessTimes.lower_bound(mem.LastAccessTime());
-                    while (m_accessTimes.end() != timeIter) {
-                        if (&mem == timeIter->second) {
-                            m_accessTimes.erase(timeIter);
-                            break;
-                        }
-                        ++timeIter;
+                auto timeIter = m_accessTimes.lower_bound(mem.LastAccessTime());
+                while (m_accessTimes.end() != timeIter) {
+                    if (&mem == timeIter->second) {
+                        m_accessTimes.erase(timeIter);
+                        break;
                     }
-#endif // RETIRE
-                    return std::unique_ptr<void, deleter_t> (mem.get(),
-                        [=](void *p ){this->Free(p);});
+                    ++timeIter;
                 }
-
-                ++iter;
+#endif // RETIRE
+                return std::unique_ptr<void, deleter_t> (mem.get(),
+                    [=](void *p ){this->Free(p);});
             }
         }
 
