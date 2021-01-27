@@ -1,11 +1,11 @@
 
-%include "dimanche/cpu/asm_defs.inc"
+%include "dimanche/system/asm_defs.inc"
 
 section .data
 
 CPU_UNKNOWN EQU 00000000h ; not featured CPU (Pentium, K5)
-CPU_INTEL EQU 00000000h
-CPU_AMD EQU 40000000h
+CPU_INTEL EQU 40000000h
+CPU_AMD EQU 80000000h
 
 ; cpuid (eax = 01h), edx
 CPUID_CMOV_BIT EQU 00008000h
@@ -30,10 +30,20 @@ CPUID_ERMS_BIT EQU 00000200h
 CPUID_AVX512F_BIT EQU 00010000h
 CPUID_AVX512DQ_BIT EQU 00020000h
 CPUID_AVX512BW_BIT EQU 40000000h
+CPUID_AVX512VL_BIT EQU 80000000h
 ; cpuid (eax = 80000001h), edx
 CPUID_MMP_BIT EQU 00400000h
 ; cpuid (eax = 80000001h), ecx
 CPUID_ABM_BIT EQU 00000020h
+
+XCR0_SSE_BIT EQU 00000002h
+XCR0_AVX_BIT EQU 00000004h
+XCR0_opmask_BIT EQU 00000020h
+XCR0_ZMM_hi256_BIT EQU 00000040h
+XCR0_Hi16_ZMM_BIT EQU 00000080h
+
+XCR0_AVX_BITSET EQU XCR0_AVX_BIT | XCR0_SSE_BIT
+XCR0_AVX512_BITSET EQU XCR0_Hi16_ZMM_BIT | XCR0_ZMM_hi256_BIT | XCR0_opmask_BIT | XCR0_AVX_BITSET
 
 FEATURE_CMOV_BIT EQU 00000001h
 FEATURE_MMX EQU 00000002h
@@ -55,8 +65,9 @@ FEATURE_AVX2 EQU 00008000h + FEATURE_AVX
 FEATURE_BMI2_BIT EQU 00010000h
 FEATURE_ERMS_BIT EQU 00020000h
 FEATURE_AVX512F EQU 00040000h + FEATURE_AVX2
-FEATURE_AVX512BW EQU 00080000h + FEATURE_AVX512F
-FEATURE_AVX512DQ EQU 00100000h + FEATURE_AVX512BW
+FEATURE_AVX512VL EQU 00080000h + FEATURE_AVX512F
+FEATURE_AVX512BW EQU 00100000h
+FEATURE_AVX512DQ EQU 00200000h
 
 
 ; data section of file
@@ -68,7 +79,7 @@ AMDVendor: BYTE "AuthenticAMD"
 ; code section of file
 section .text
 
-global di_cpu_get_type_asm
+global di_system_cpu_get_type_asm
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Function to retrieve CPU features
@@ -105,8 +116,9 @@ global di_cpu_get_type_asm
 
 
 align 10h
-di_cpu_get_type_asm:
+di_system_cpu_get_type_asm:
 
+    DECL_USED_REGS USED_REGS
     ENTER_PROC
 
     ; get standard feature set
@@ -114,8 +126,8 @@ di_cpu_get_type_asm:
     cpuid
 
     ; check OXSAVE feature enabled for correct YMM? instructons saving
-    and ecx, CPUID_OSXSAVE_BIT + CPUID_AVX_BIT
-    cmp ecx, CPUID_OSXSAVE_BIT + CPUID_AVX_BIT
+    and ecx, CPUID_OSXSAVE_BIT | CPUID_AVX_BIT
+    cmp ecx, CPUID_OSXSAVE_BIT | CPUID_AVX_BIT
     jne _CHECK_SSE_TECHNOLOGIES
 
     ; processor supports AVX instructions and XGETBV is enabled by OS
@@ -124,12 +136,12 @@ di_cpu_get_type_asm:
     ; xgetbv
     BYTE 0fh, 01h, 0d0h
 
-    and eax, 0e6h ; mask bits [7:5] and [2:1]
-    cmp eax, 0e6h ; check OS has enabled both XMM and YMM state support
-    je _CHECK_AVX512_TECHNOLOGY
+    and eax, XCR0_AVX512_BITSET ; mask bits [7:5] and [2:1]
+    cmp eax, XCR0_AVX512_BITSET ; check OS has enabled both XMM and YMM state support
+    je _CHECK_AVX512_TECHNOLOGIES
 
-    and eax, 06h ; mask bits [2:1]
-    cmp eax, 06h ; check OS has enabled both XMM and YMM state support
+    and eax, XCR0_AVX_BITSET ; mask bits [2:1]
+    cmp eax, XCR0_AVX_BITSET ; check OS has enabled both XMM and YMM state support
     je _CHECK_AVX2_TECHNOLOGY
 
     mov feature_list, FEATURE_SSE42
@@ -137,31 +149,41 @@ di_cpu_get_type_asm:
 
     ; decide which AVX technology is most suitable
 
-_CHECK_AVX512_TECHNOLOGY:
+ALIGN 10h
+_CHECK_AVX512_TECHNOLOGIES:
 
     ; get advanced feature set
     mov eax, 07h
     mov ecx, 00h
     cpuid
 
+    ; check AVX512F bit
+    test ebx, CPUID_AVX512F_BIT
+    jz _CHECK_AVX2_TECHNOLOGY
+
+    mov feature_list, FEATURE_AVX512F
+
+    ; don't support any advanced AVX512 technology without 'Vector Length Extensions'
+    test ebx, CPUID_AVX512VL_BIT
+    jz _CHECK_ADVANCED_TECHNOLOGIES
+    or feature_list, FEATURE_AVX512VL
+
     ; set AVX512BW bit
     test ebx, CPUID_AVX512BW_BIT
-    mov feature_list, FEATURE_AVX512BW
-    jnz _CHECK_ADVANCED_TECHNOLOGIES
+    lea eax, [feature_list + FEATURE_AVX512BW]
+    cmovnz feature_list, eax
 
     ; set AVX512DQ bit
     test ebx, CPUID_AVX512DQ_BIT
-    mov feature_list, FEATURE_AVX512DQ
-    jnz _CHECK_ADVANCED_TECHNOLOGIES
+    lea eax, [feature_list + FEATURE_AVX512DQ]
+    cmovnz feature_list, eax
 
-    ; set AVX512F bit
-    test ebx, CPUID_AVX512F_BIT
-    mov feature_list, FEATURE_AVX512F
-    jnz _CHECK_ADVANCED_TECHNOLOGIES
+    jmp _CHECK_ADVANCED_TECHNOLOGIES
 
+ALIGN 10h
 _CHECK_AVX2_TECHNOLOGY:
 
-    ; set AVX bit
+    ; set AVX technology
     mov feature_list, FEATURE_AVX
 
     ; get advanced feature set

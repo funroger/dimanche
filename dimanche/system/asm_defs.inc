@@ -1,6 +1,6 @@
 
-%ifndef __DIMANCHE_ASM_DEFS_INC
-%define __DIMANCHE_ASM_DEFS_INC
+%ifndef __DIMANCHE_SYSTEM_ASM_DEFS_INC
+%define __DIMANCHE_SYSTEM_ASM_DEFS_INC
 
 
 ;
@@ -45,6 +45,10 @@ default rel
 %define BYTE DB
 %define WORD DW
 %define DWORD DD
+
+
+; set shuffle constants
+%assign CLONE_DWORD_0 00000000b
 
 
 ; set platform macros
@@ -136,31 +140,31 @@ default rel
 
     %ifidni QWORD, arg_type
 
-        %define arg_reg_type QWORD
+        %define arg_reg_type _QWORD
         %define arg_mem_type qword
 
     %elifidni DWORD, arg_type
 
-        %define arg_reg_type DWORD
+        %define arg_reg_type _DWORD
         %define arg_mem_type dword
 
     %elifidni WORD, arg_type
 
-        %define arg_reg_type WORD
+        %define arg_reg_type _WORD
         %define arg_mem_type word
 
     %elifidni BYTE, arg_type
 
-        %define arg_reg_type BYTE
+        %define arg_reg_type _BYTE
         %define arg_mem_type byte
 
     %elifidni PTRDIFF_T, arg_type
 
         %ifdef _X64
-            %define arg_reg_type QWORD
+            %define arg_reg_type _QWORD
             %define arg_mem_type qword
         %else
-            %define arg_reg_type DWORD
+            %define arg_reg_type _DWORD
             %define arg_mem_type dword
         %endif
 
@@ -178,7 +182,7 @@ default rel
     %ifndef _decl_args_second_declaration
         %define _decl_args_second_declaration
     %else
-        %warning it's not recommended to have 2 DECL_ARGS in one file.
+        %warning "it's not recommended to have 2 DECL_ARGS in one file."
     %endif
 
     ; parameters are: for every argument TYPE + name
@@ -200,7 +204,7 @@ default rel
         %rotate 1
 
         %if arg_idx < _NUM_REG_ARGS
-            %xdefine %1 TO_ %+ arg_reg_type(_ARG_ %+ arg_idx)
+            %xdefine %1 TO %+ arg_reg_type(_ARG_ %+ arg_idx)
         %else
             %xdefine %1 arg_mem_type [_ARGS_BASE + arg_offset]
             %assign arg_offset arg_offset + _GEN_REG_SIZE
@@ -637,4 +641,4 @@ default rel
 %define _QWORD_r15d r15
 %define _QWORD_r15 r15
 
-%endif ; __DIMANCHE_ASM_DEFS_INC
+%endif ; __DIMANCHE_SYSTEM_ASM_DEFS_INC

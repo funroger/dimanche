@@ -1,8 +1,8 @@
 
 #pragma once
 
-#if !defined(__DIMANCHE_CPU_CPU_H)
-#define __DIMANCHE_CPU_CPU_H
+#if !defined(__DIMANCHE_SYSTEM_CPU_H)
+#define __DIMANCHE_SYSTEM_CPU_H
 
 #include <dimanche/basic/types.h>
 
@@ -18,9 +18,9 @@ enum class eCpuType : uint32_t {
 
 #if defined(_X86) || defined(_X64)
     // genuine Intel CPU
-    Intel = 0x00000000,
+    Intel = 0x40000000,
     // authentic AMD CPU
-    AMD = 0x40000000,
+    AMD = 0x80000000,
 
     // CMOV technology featured CPU (Pentium Pro)
     cmov = (1 << 0),
@@ -60,51 +60,20 @@ enum class eCpuType : uint32_t {
     erms = (1 << 17),
     // AVX512 foundation technology featured CPU (Core iX Skylake or Cannonlake)
     avx512f = (1 << 18) | avx2,
+    // AVX512 vector length extensions featured CPU (Core iX Skylake or Cannonlake)
+    avx512vl = (1 << 19) | avx512f,
     // AVX512 byte & word technology featured CPU (Core iX Skylake or Cannonlake)
-    avx512bw = (1 << 19) | avx512f,
+    avx512bw = (1 << 20) | avx512vl,
     // AVX512 dword & qword technology featured CPU (Core iX Skylake or Cannonlake)
-    avx512dq = (1 << 20) | avx512bw,
+    avx512dq = (1 << 21) | avx512vl,
     // maximum support tech id is (1 << 29)
 
-    // CPU with SSE technology (Pentium III)
-    katmai = Intel | sse,
-    // CPU with SSE 2 technology (Pentium 4)
-    willamette = Intel | sse2,
-    // CPU with SSE 3 technology (Pentium 4 Prescott)
-    prescott = Intel | sse3,
-    // CPU with supplemental SSE 3 technology (Core Duo)
-    merom = Intel | sse3s,
+    // declare custom feature combinations
+
     // CPU with SSE 4.1 technology (Core 2 Duo)
     penryn = Intel | sse41,
-    // CPU with SSE 4.2 technology (Core i7)
-    nehalem = Intel | sse42,
-    // CPU with AVX instruction set (Core i7)
-    sandybridge = Intel | avx | erms,
-    // CPU with AVX & RDRAND instruction set (Core i7)
-    ivybridge = Intel | avx | rdrand | erms,
-    // CPU with AVX2 instruction set (Core i7)
-    haswell = Intel | avx2 | fma | rdrand | bmi2 | erms,
-    // CPU with AVX512F instruction set (Core i7)
-    skylake = Intel | avx512f | fma | rdrand | bmi2 | erms,
-    // CPU with AVX512(F, BW, DQ) instruction set (Core i7)
-    cannonlake = Intel | avx512dq | fma | rdrand | bmi2 | erms,
-
-    // CPU with MMP technology (classic Athlon)
-    athlon = AMD | mmp,
-    // CPU with SSE technology (Athlon XP)
-    palomino = AMD | sse,
-    // CPU with SSE 2 technology (Athlon 64, Opteron)
-    clawhammer = AMD | sse2,
-    // CPU with SSE 3 technology (Athlon 64 Venice)
-    venice = AMD | sse3,
-    // CPU with SSE 3 & ABM technology (Athlon 64 Barcelona)
-    barcelona = AMD | sse3 | abm,
-    // CPU with AVX & FMA technology (Athlon 64 Bulldozer)
-    bulldozer = AMD | avx | fma | abm,
-    // CPU with AVX & BMI & FMA technology (Athlon 64 Piledriver)
-    piledriver = AMD | avx | fma | bmi,
-    // CPU with AVX2 & BMI2 & FMA technology (Ryzen 3/5/7)
-    zen = AMD | avx2 | fma | rdrand | bmi2
+    // AVX512 f/vl/bw/dq technologies featured CPU (Core iX Skylake or Cannonlake)
+    avx512bwdq = avx512dq | avx512bw,
 
 #elif defined(_ARM)
 
@@ -115,9 +84,9 @@ enum class eCpuType : uint32_t {
 #elif defined(_ARM64)
 
     neon = (1 << 0),
-    asimd = (1 << 1) | neon,
-    aes = (1 << 2),
-    crc32 = (1 << 3)
+    aes = (1 << 1),
+    crc32 = (1 << 2),
+    asimd = (1 << 3) | neon
 
 #endif // defined(_X86) || defined(_X64)
 
@@ -146,4 +115,4 @@ void ResetState(void);
 #pragma comment (lib, "cpu")
 #endif // defined(_WINDOWS)
 
-#endif // !defined(__DIMANCHE_CPU_CPU_H)
+#endif // !defined(__DIMANCHE_SYSTEM_CPU_H)

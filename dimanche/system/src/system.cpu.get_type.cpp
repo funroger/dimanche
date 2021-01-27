@@ -1,7 +1,7 @@
 
-#include <dimanche/cpu/cpu.h>
+#include <dimanche/system/cpu.h>
 
-#include <dimanche/cpu/inc/cpu_internal.h>
+#include <dimanche/system/inc/cpu_internal.h>
 
 namespace dimanche {
 namespace system {
@@ -18,7 +18,7 @@ eCpuType get_type(void)
 
 #if defined(_X86) || defined(_X64)
 
-    cpuType = di_cpu_get_type_asm();
+    cpuType = di_system_cpu_get_type_asm();
 
 #elif defined(_ARM) || defined(_ARM64)
 

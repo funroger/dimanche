@@ -1,7 +1,17 @@
 
-#include <dimanche/cpu/cpu.h>
-#include <dimanche/cpu/intrinsics.h>
-#include <dimanche/cpu/inc/cpu_internal.h>
+#include <dimanche/system/cpu.h>
+#include <dimanche/system/intrinsics.h>
+#include <dimanche/system/inc/cpu_internal.h>
+
+#if defined(_X86) || defined(_X64)
+
+IMPL_PROC_2(di_system_cpu_reset_state, mmx, avx);
+
+#else // !(defined(_X86) || defined(_X64))
+
+IMPL_PROC_0(di_system_cpu_reset_state, mmx, avx);
+
+#endif // defined(_X86) || defined(_X64)
 
 namespace dimanche {
 namespace system {
@@ -33,20 +43,14 @@ void SetType(const eCpuType requiredCpuType)
     cpuType = requiredCpuType;
 }
 
+extern "C"
+void di_system_cpu_reset_state_c() {
+  // do nothing in non-featured version
+}
+
 void ResetState(void)
 {
-#if defined(_X86) || defined(_X64)
-/*
-    const auto cpu = GetType();
-
-    if ((uint32_t) (eCpuType::mmx & cpu)) {
-        _mm_empty();
-    }
-    if ((uint32_t) (eCpuType::avx & cpu)) {
-        _mm256_zeroupper();
-    }*/
-
-#endif // defined(_X86) || defined(_X64)
+    di_system_cpu_reset_state();
 
 } // void ResetState(void)
 

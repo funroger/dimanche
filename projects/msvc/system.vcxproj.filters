@@ -12,26 +12,32 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\dimanche\cpu\cpu.h" />
-    <ClInclude Include="..\..\dimanche\cpu\intrinsics.h" />
-    <ClInclude Include="..\..\dimanche\cpu\inc\cpu_internal.h">
+    <ClInclude Include="..\..\dimanche\system\cpu.h" />
+    <ClInclude Include="..\..\dimanche\system\intrinsics.h" />
+    <ClInclude Include="..\..\dimanche\system\inc\cpu_internal.h">
       <Filter>inc</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\dimanche\cpu\cpu_opt.h" />
+    <ClInclude Include="..\..\dimanche\system\cpu_opt.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\dimanche\cpu\src\cpu.cpp">
+    <ClCompile Include="..\..\dimanche\system\src\system.cpu.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dimanche\cpu\src\get_type.cpp">
+    <ClCompile Include="..\..\dimanche\system\src\system.cpu.get_type.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\dimanche\cpu\asm_defs.inc" />
+    <None Include="..\..\dimanche\system\asm_defs.inc" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\dimanche\cpu\src\asm\get_type.x86.asm">
+    <CustomBuild Include="..\..\dimanche\system\src\asm\system.cpu.get_type.x86.asm">
+      <Filter>src\asm</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\dimanche\system\src\asm\system.cpu.reset_state.x86.avx.asm">
+      <Filter>src\asm</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\..\dimanche\system\src\asm\system.cpu.reset_state.x86.mmx.asm">
       <Filter>src\asm</Filter>
     </CustomBuild>
   </ItemGroup>

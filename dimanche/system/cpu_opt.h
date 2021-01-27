@@ -1,13 +1,13 @@
 
 #pragma once
 
-#if !defined(__DIMANCHE_CPU_CPU_OPT_H)
-#define __DIMANCHE_CPU_CPU_OPT_H
+#if !defined(__DIMANCHE_SYSTEM_CPU_OPT_H)
+#define __DIMANCHE_SYSTEM_CPU_OPT_H
 
-#include <dimanche/cpu/cpu.h>
+#include <dimanche/system/cpu.h>
 
 #define DECL_PROC_TYPES(return_type, function, formal_args) \
-    namespace function##_disp \
+    namespace function##_namespace \
     { \
         /* declare function type */ \
         using cpu_t = dimanche::system::cpu::eCpuType; \
@@ -35,13 +35,13 @@
             } \
             return (table[idx]) (params...); \
         } \
-    } /* namespace function##_disp */ \
+    } /* namespace function##_namespace */ \
 
 
 #define DECL_PROC(return_type, function, formal_args, actual_args) \
     /* declare function types */ \
     DECL_PROC_TYPES(return_type, function, formal_args) \
-    namespace function##_disp \
+    namespace function##_namespace \
     { \
         /* declare the implementation table */ \
         class impl \
@@ -55,10 +55,10 @@
         /* declare the function pointer */ \
         extern \
         function_t *p; \
-    } /* namespace function##_disp */ \
+    } /* namespace function##_namespace */ \
     inline \
-    function##_disp::return_t function formal_args { \
-        return (*function##_disp::p) actual_args; \
+    function##_namespace::return_t function formal_args { \
+        return (*function##_namespace::p) actual_args; \
     } \
 
 
@@ -66,10 +66,10 @@
     /* declare optimized functions */ \
     extern "C" \
     { \
-        function##_disp::function_t function##_c; \
+        function##_namespace::function_t function##_c; \
     } \
     /* implement function's stuff */ \
-    namespace function##_disp \
+    namespace function##_namespace \
     { \
         /* implement the implementation table */ \
         const struct impl_table_t impl::table[] = { \
@@ -86,11 +86,11 @@
     /* declare optimized functions */ \
     extern "C" \
     { \
-        function##_disp::function_t function##_c; \
-        function##_disp::function_t function##_##type0##_asm; \
+        function##_namespace::function_t function##_c; \
+        function##_namespace::function_t function##_##type0##_asm; \
     } \
     /* implement function's stuff */ \
-    namespace function##_disp \
+    namespace function##_namespace \
     { \
         /* implement the implementation table */ \
         const struct impl_table_t impl::table[] = { \
@@ -108,12 +108,12 @@
     /* declare optimized functions */ \
     extern "C" \
     { \
-        function##_disp::function_t function##_c; \
-        function##_disp::function_t function##_##type0##_asm; \
-        function##_disp::function_t function##_##type1##_asm; \
+        function##_namespace::function_t function##_c; \
+        function##_namespace::function_t function##_##type0##_asm; \
+        function##_namespace::function_t function##_##type1##_asm; \
     } \
     /* implement function's stuff */ \
-    namespace function##_disp \
+    namespace function##_namespace \
     { \
         /* implement the implementation table */ \
         const struct impl_table_t impl::table[] = { \
@@ -132,13 +132,13 @@
     /* declare optimized functions */ \
     extern "C" \
     { \
-        function##_disp::function_t function##_c; \
-        function##_disp::function_t function##_##type0##_asm; \
-        function##_disp::function_t function##_##type1##_asm; \
-        function##_disp::function_t function##_##type2##_asm; \
+        function##_namespace::function_t function##_c; \
+        function##_namespace::function_t function##_##type0##_asm; \
+        function##_namespace::function_t function##_##type1##_asm; \
+        function##_namespace::function_t function##_##type2##_asm; \
     } \
     /* implement function's stuff */ \
-    namespace function##_disp \
+    namespace function##_namespace \
     { \
         /* implement the implementation table */ \
         const struct impl_table_t impl::table[] = { \
@@ -153,4 +153,4 @@
         function_t *p = init_pointer<impl, &p, 0>; \
     } /* namespace function_name##_disp */
 
-#endif // !defined(__DIMANCHE_CPU_CPU_OPT_H)
+#endif // !defined(__DIMANCHE_SYSTEM_CPU_OPT_H)

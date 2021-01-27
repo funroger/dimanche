@@ -1,8 +1,8 @@
 
 #pragma once
 
-#if !defined(__DIMANCHE_CPU_INTRINSICS_H)
-#define __DIMANCHE_CPU_INTRINSICS_H
+#if !defined(__DIMANCHE_SYSTEM_INTRINSICS_H)
+#define __DIMANCHE_SYSTEM_INTRINSICS_H
 
 #include <dimanche/basic/platform.h>
 
@@ -44,4 +44,4 @@ typedef uint64_t __attribute__ ((__aligned__(1))) unaligned_uint64_t;
 
 #endif /* defined(_X86) || defined(_X64) */
 
-#endif // !defined(__DIMANCHE_CPU_INTRINSICS_H)
+#endif /* !defined(__DIMANCHE_SYSTEM_INTRINSICS_H) */
