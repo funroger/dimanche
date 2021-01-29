@@ -1,3 +1,5 @@
+// copyright (c) 2013 Victor Cherepanov
+// distributed under BSD 3-clause license
 
 #pragma once
 
@@ -112,7 +114,7 @@ void ResetState(void);
 
 // declare the library name
 #if defined(_WINDOWS)
-#pragma comment (lib, "cpu")
+#pragma comment (lib, "system")
 #endif // defined(_WINDOWS)
 
 #endif // !defined(__DIMANCHE_SYSTEM_CPU_H)
