@@ -9,10 +9,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\dimanche\vm\file.h" />
+    <ClInclude Include="..\..\dimanche\io\file.h" />
+    <ClInclude Include="..\..\dimanche\io\console.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\dimanche\vm\src\file.cpp">
+    <ClCompile Include="..\..\dimanche\io\src\io.file.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dimanche\io\src\io.console.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

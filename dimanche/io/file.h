@@ -1,11 +1,14 @@
 
 #pragma once
 
-#if !defined(__DIMANCHE_VM_FILE_H)
-#define __DIMANCHE_VM_FILE_H
+#if !defined(__DIMANCHE_IO_FILE_H)
+#define __DIMANCHE_IO_FILE_H
 
 #include <dimanche/basic/result.h>
 #include <dimanche/basic/types.h>
+
+#include <memory>
+#include <tuple>
 
 namespace dimanche {
 namespace file {
@@ -60,6 +63,10 @@ enum class eFlag : uint32_t
 };
 
 inline
+eFlag operator | (const eFlag left, const eFlag right) {
+    return (eFlag) ((uint32_t) left | (uint32_t) right);
+}
+inline
 eFlag operator & (const eFlag left, const eFlag right) {
     return (eFlag) ((uint32_t) left & (uint32_t) right);
 }
@@ -75,54 +82,8 @@ enum class ePosition : uint32_t
 // forward declaration of overlapped structure
 struct OVRLPD;
 
-// create or open a file
-eResult open(handle &h, const wchar_t *pwFile,
-    const eAccess accessType, const eAccess shareMode,
-    const eDisposition creationDisposition, const eFlag flags);
-eResult open(handle &h, const char *pcFile,
-    const eAccess accessType, const eAccess shareMode,
-    const eDisposition creationDisposition, const eFlag flags);
-
-// initialize an overlapped control unit
-eResult initialize_overlapped_control(OVRLPD *(&pOverlapped));
-
-// reads data from a file, and starts at the position
-// that the file pointer indicates
-eResult read(handle h, void *pBuffer,
-    const size_t bytesToRead, size_t *pReadBytes = nullptr,
-    OVRLPD * const pOverlapped = nullptr);
-
-// writes data to the specified file at the position
-// that specified by the file pointer
-eResult write(handle h, const void *pBuffer,
-    const size_t bytesToWrite, size_t *pWrittenBytes = nullptr,
-    OVRLPD * const pOverlapped = nullptr);
-
-// moves the file pointer of the specified file
-eResult set_pointer(handle h, int64_t distanceToMove,
-    uint64_t *pNewPosition, const ePosition moveMethod);
-
-// wait for the end of I/O operation
-eResult wait_io(handle h, OVRLPD * const pOverlapped,
-    size_t &processedBytes);
-
-// retrieves the size of the file specified
-eResult get_size(handle h, uint64_t &fileSize);
-eResult get_size(const wchar_t *pwFile, uint64_t &fileSize);
-eResult get_size(const char *pcFile, uint64_t &fileSize);
-
-// retrieves information about the specified disk, which holds the given file
-eResult get_sector_size(const wchar_t *pwFile, size_t &sectorSize);
-eResult get_sector_size(const char *pcFile, size_t &sectorSize);
-
-// cancel all I/O operations with this file
-eResult cancel_io(handle h);
-
-// close the overlapped control
-eResult close_overlapped_control(OVRLPD * const pOverlapped);
-
 // close the file
-eResult close(handle h);
+void close(handle h);
 
 struct closer
 {
@@ -131,7 +92,65 @@ struct closer
     }
 };
 
+using unique_file_t = std::unique_ptr<_handle_t, closer>;
+
+// create or open a file
+unique_file_t open(const std::wstring &path,
+    const eAccess accessType, const eAccess shareMode,
+    const eDisposition creationDisposition, const eFlag flags);
+unique_file_t open(const std::string &path,
+    const eAccess accessType, const eAccess shareMode,
+    const eDisposition creationDisposition, const eFlag flags);
+
+// close the overlapped control
+void close_overlapped_control(OVRLPD * const pOverlapped);
+
+struct overlapped_control_closer
+{
+    void operator () (OVRLPD * const pOverlapped) const {
+        close_overlapped_control(pOverlapped);
+    }
+};
+
+// initialize an overlapped control unit
+std::unique_ptr<OVRLPD, overlapped_control_closer> initialize_overlapped_control();
+
+// reads data from a file, starts at the position
+// that the file pointer indicates. returns the number of bytes read
+std::tuple<eResult, size_t> read(handle h, void *pBuffer,
+    const size_t bytesToRead, OVRLPD * const pOverlapped = nullptr);
+
+// writes data to the specified file at the position
+// that specified by the file pointer. returns the number of written bytes
+std::tuple<eResult, size_t> write(handle h, const void *pBuffer,
+    const size_t bytesToWrite, OVRLPD * const pOverlapped = nullptr);
+
+// moves the file pointer of the specified file, return the current position
+std::tuple<eResult, uint64_t> set_pointer(handle h, int64_t distanceToMove,
+    const ePosition moveMethod);
+
+// wait for the end of I/O operation
+eResult wait_io(handle h, OVRLPD * const pOverlapped,
+    size_t &processedBytes);
+
+// retrieves the size of the file specified
+std::tuple<eResult, uint64_t> get_size(handle h);
+std::tuple<eResult, uint64_t> get_size(const std::wstring &path);
+std::tuple<eResult, uint64_t> get_size(const std::string &path);
+
+// retrieves information about the specified disk, which holds the given file
+std::tuple<eResult, size_t> get_sector_size(const std::wstring &path);
+std::tuple<eResult, size_t> get_sector_size(const std::string &path);
+
+// cancel all I/O operations with this file
+eResult cancel_io(handle h);
+
 } // namespace file
 } // namespace dimanche
 
-#endif // !defined(__DIMANCHE_VM_FILE_H)
+// declare the library name
+#if defined(_WINDOWS)
+#pragma comment (lib, "io")
+#endif // defined(_WINDOWS)
+
+#endif // !defined(__DIMANCHE_IO_FILE_H)

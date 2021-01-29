@@ -1,5 +1,5 @@
 
-#include <dimanche/vm/file.h>
+#include <dimanche/io/file.h>
 
 #include <dimanche/basic/assert.h>
 
@@ -21,7 +21,7 @@ namespace {
 #if defined(_WINDOWS)
 
 template <typename char_t, typename function_t>
-eResult open(handle &hFile, const char_t *pFile,
+unique_file_t open(const char_t *pFile,
     const eAccess accessType, const eAccess shareMode,
     const eDisposition creationDisposition, const eFlag flags,
     function_t function)
@@ -83,20 +83,18 @@ eResult open(handle &hFile, const char_t *pFile,
     h = function(pFile, dwDesiredAccess, dwShareMode, nullptr,
         dwCreationDisposition, dwFlagsAndAttributes, nullptr);
     if (INVALID_HANDLE_VALUE == h) {
-        return eResult::ERR_BAD_PATH;
+        return nullptr;
     }
-    hFile = (handle) h;
+    return unique_file_t((handle) h);
 
-    return eResult::OK;
-
-} // eResult open(handle &hFile, const wchar_t *pwFile,
+} // unique_file_t open(const char_t *pFile,
 
 #else // !defined(_WINDOWS)
 
-char *sl_get_file_name_w(const wchar_t *pwFile)
+std::unique_ptr<char []> sl_get_file_name_w(const wchar_t *pwFile)
 {
     size_t written = 0, size = 128;
-    char *cFile = nullptr;
+    std::unique_ptr<char []> fileName;
 
     // check error(s)
     if (nullptr == pwFile) {
@@ -107,24 +105,19 @@ char *sl_get_file_name_w(const wchar_t *pwFile)
     {
         const wchar_t *pw = pwFile;
 
-        // deallocate the previously allocated path
-        if (cFile) {
-            free(cFile);
-        }
-
         // allocate file path
         size *= 2;
-        cFile = malloc(size);
+        fileName.reset(new (std::nothrow) char[size]);
         if (nullptr == cFile) {
             return nullptr;
         }
-        written = wcsrtombs(cFile, &pw, size, nullptr);
+        written = wcsrtombs(fileName.get(), &pw, size, nullptr);
 
     } while (written >= size);
 
-    return cFile;
+    return fileName;
 
-} // char *sl_get_file_name_w(const wchar_t *pwFile)
+} // std::unique_ptr<char []> sl_get_file_name_w(const wchar_t *pwFile)
 
 int sl_test_file_c(const char *pcFile, const uint32_t fileAccessType)
 {
@@ -177,60 +170,66 @@ int sl_test_file_c(const char *pcFile, const uint32_t fileAccessType)
 
 } // namespace
 
+void close(handle hFile)
+{
+#if defined(_WINDOWS)
 
-eResult open(handle &hFile, const wchar_t *pwFile,
+    CloseHandle((HANDLE) hFile);
+
+#else // !defined(_WINDOWS)
+
+    fclose((FILE *) hFile);
+
+#endif // defined(_WINDOWS)
+
+} // void close(handle hFile)
+
+unique_file_t open(const wchar_t *pwFile,
     const eAccess accessType, const eAccess shareMode,
     const eDisposition creationDisposition, const eFlag flags)
 {
     // check error(s)
     if (nullptr == pwFile) {
-        return eResult::ERR_NULLPTR;
+        return nullptr;
     }
 
 #if defined(_WINDOWS)
 
-    return open(hFile, pwFile, accessType, shareMode,
+    return open(pwFile, accessType, shareMode,
         creationDisposition, flags, CreateFileW);
 
 #else // !defined(_WINDOWS)
 
-    {
-        char *cFile = sl_get_file_name_w(pwFile);
-        eResult res;
+    auto fileName = sl_get_file_name_w(pwFile);
+    eResult res;
 
-        // check error(s)
-        if (nullptr == cFile) {
-            return eResult::ERR_BAD_PATH;
-        }
-
-        // open the file
-        res = open(phFile, cFile, fileAccessType, fileShareMode,
-            fileCreationDisposition, fileFlags);
-        // deallocate the file path
-        free(cFile);
-        if (eStatus::OK != res) {
-            return res;
-        }
+    // check error(s)
+    if (!fileName) {
+        return nullptr;
     }
 
-    return eResult::OK;
+    // open the file
+    auto file = open(fileName.get(), fileAccessType, fileShareMode,
+        fileCreationDisposition, fileFlags);
+
+    return file;
 
 #endif // defined(_WINDOWS)
 
-} // eResult open(handle &hFile, const wchar_t *pwFile,
+} // unique_file_t open(const wchar_t *pwFile,
 
-eResult open(handle &hFile, const char *pcFile,
+unique_file_t open(const char *pcFile,
     const eAccess accessType, const eAccess shareMode,
     const eDisposition creationDisposition, const eFlag flags)
 {
     // check error(s)
     if (nullptr == pcFile) {
-        return eResult::ERR_NULLPTR;
+        return nullptr;
     }
 
 #if defined(_WINDOWS)
 
-    return open(hFile, pcFile, accessType, shareMode,
+    return open(pcFile, accessType, shareMode,
         creationDisposition, flags, CreateFileA);
 
 #else // !defined(_WINDOWS)
@@ -240,7 +239,7 @@ eResult open(handle &hFile, const char *pcFile,
     {
         const char *mode = nullptr;
         const int bExist = sl_test_file_c(pcFile, fileAccessType);
-        FILE *hFile;
+        FILE *hFile = nullptr;
 
         // set the access mode
         switch (accessType)
@@ -259,14 +258,14 @@ eResult open(handle &hFile, const char *pcFile,
         case eAccess::Read | eAccess::Write:
             if (eDisposition::CreateNew == creationDisposition) {
                 if (bExist) {
-                    return eResult::ERR_FAILED;
+                    return nullptr;
                 }
                 mode = "w+b";
             } else if (eDisposition::CreateAlways == creationDisposition) {
                 mode = "w+b";
             } else if (eDisposition::OpenExisting == creationDisposition) {
                 if (!bExist) {
-                    return eResult::ERR_FAILED;
+                    return nullptr;
                 }
                 mode = "r+b";
             } else if (eDisposition::OpenAlways == creationDisposition) {
@@ -280,90 +279,85 @@ eResult open(handle &hFile, const char *pcFile,
 
         // mode is not set
         if (nullptr == mode) {
-            return eResult::ERR_FAILED;
+            return nullptr;
         }
 
         // open the file
         hFile = fopen(pcFile, mode);
         if (nullptr == hFile) {
-            return eResult::ERR_BAD_PATH;
+            return nullptr;
         }
         // disable buffering if any
         if (eFlag::NoBuffering & flags) {
             setbuf(hFile, nullptr);
         }
-        *phFile = (handle) hFile;
     }
 
-    return eResult::OK;
+    return unique_file_t((handle) hFile);
 
 #endif // defined(_WINDOWS)
 
-} // eResult open(handle &hFile, const char *pcFile,
+} // unique_file_t open(handle &hFile, const char *pcFile,
 
-eResult initialize_overlapped_control(OVRLPD *(&pOverlapped))
+std::unique_ptr<OVRLPD, overlapped_control_closer> initialize_overlapped_control()
 {
 #if defined(_WINDOWS)
 
     // reset the structure
-    std::unique_ptr<OVERLAPPED> p(new (std::nothrow) OVERLAPPED());
+    std::unique_ptr<OVRLPD, overlapped_control_closer> p((OVRLPD *) new (std::nothrow) OVERLAPPED());
     if (nullptr == p) {
-        return eResult::ERR_ALLOC;
+        return nullptr;
     }
     memset(p.get(), 0, sizeof(OVERLAPPED));
 
     // initialize members of the overlapped structure
-    p->hEvent = CreateEventA(nullptr, FALSE, FALSE, nullptr);
-    if (nullptr == p->hEvent) {
-        return eResult::ERR_ALLOC;
+    OVERLAPPED &o = *((OVERLAPPED *) p.get());
+    o.hEvent = CreateEventA(nullptr, FALSE, FALSE, nullptr);
+    if (nullptr == o.hEvent) {
+        return nullptr;
     }
-    ((OVERLAPPED *(&)) pOverlapped) = p.release();
 
-    return eResult::OK;
+    return p;
 
 #else // !defined(_WINDOWS)
 
     UNUSED(pOverlapped);
 
-    return eResult::ERR_NOT_IMPL;
+    return nullptr;
 
 #endif // defined(_WINDOWS)
 
-} // eResult initialize_overlapped_control(OVRLPD *(&pOverlapped))
+} // std::unique_ptr<OVRLPD, overlapped_control_closer> initialize_overlapped_control()
 
-eResult read(handle hFile, void *pBuffer,
-    const size_t bytesToRead, size_t *pReadBytes,
-    OVRLPD * const pOverlapped)
+std::tuple<eResult, size_t> read(handle hFile, void *pBuffer,
+    const size_t bytesToRead, OVRLPD * const pOverlapped)
 {
     // check error(s)
     if (nullptr == pBuffer) {
-        return eResult::ERR_NULLPTR;
+        return {eResult::ERR_NULLPTR, 0};
     }
     if (UINT_MAX < bytesToRead) {
-        return eResult::ERR_BAD_SIZE;
+        return {eResult::ERR_BAD_SIZE, 0};
     }
 
 #if defined(_WINDOWS)
 
-    DWORD nWritten;
+    DWORD written;
     BOOL bRes;
 
     // start reading operation
     bRes = ReadFile((HANDLE) hFile,
         (LPVOID) pBuffer, (DWORD) bytesToRead,
-        &nWritten, (LPOVERLAPPED) pOverlapped);
+        &written, (LPOVERLAPPED) pOverlapped);
     // check return status
     if (FALSE == bRes) {
-        return eResult::ERR_FAILED;
+        return {eResult::ERR_FAILED, 0};
     }
     // it was a regular reading
     if (nullptr == pOverlapped) {
         // return number of read bytes
-        if (pReadBytes) {
-            *pReadBytes = nWritten;
-        }
-        if (0 == nWritten) {
-            return eResult::ERR_END_OF_STREAM;
+        if (0 == written) {
+            return {eResult::ERR_END_OF_STREAM, 0};
         }
     } else {
         // it was an overlapped reading
@@ -376,7 +370,7 @@ eResult read(handle hFile, void *pBuffer,
             break;
 
         default:
-            return eResult::ERR_FAILED;
+            return {eResult::ERR_FAILED, 0};
         }
     }
 
@@ -384,61 +378,54 @@ eResult read(handle hFile, void *pBuffer,
 
     UNUSED(pOverlapped);
 
-    {
-        const size_t written = fread(pBuffer, 1, bytesToRead, (FILE *) hFile);
-        const int res = ferror((FILE *) hFile);
-        if (res) {
-            return eResult::ERR_FAILED;
-        }
+    const size_t written = fread(pBuffer, 1, bytesToRead, (FILE *) hFile);
+    const int res = ferror((FILE *) hFile);
+    if (res) {
+        return {eResult::ERR_FAILED, 0};
+    }
 
-        // return number of read bytes
-        if (pReadBytes) {
-            *pReadBytes = written;
-        }
-        if (0 == written) {
-            return eResult::ERR_END_OF_STREAM;
-        }
+    // return number of read bytes
+    if (pReadBytes) {
+        *pReadBytes = written;
+    }
+    if (0 == written) {
+        return {eResult::ERR_END_OF_STREAM, 0};
     }
 
 #endif // defined(_WINDOWS)
 
-    return eResult::OK;
+    return {eResult::OK, written};
 
-} // eResult read(handle hFile, void *pBuffer,
+} // std::tuple<eResult, size_t> read(handle hFile, void *pBuffer,
 
-eResult write(handle hFile, const void *pBuffer,
-    const size_t bytesToWrite, size_t *pWrittenBytes,
-    OVRLPD * const pOverlapped)
+std::tuple<eResult, size_t> write(handle hFile, const void *pBuffer,
+    const size_t bytesToWrite, OVRLPD * const pOverlapped)
 {
     // check error(s)
     if (nullptr == pBuffer) {
-        return eResult::ERR_NULLPTR;
+        return {eResult::ERR_NULLPTR, 0};
     }
     if (UINT_MAX < bytesToWrite) {
-        return eResult::ERR_BAD_SIZE;
+        return {eResult::ERR_BAD_SIZE, 0};
     }
 
 #if defined(_WINDOWS)
 
-    DWORD nWritten;
+    DWORD written;
     BOOL bRes;
 
     // start reading operation
     bRes = WriteFile((HANDLE) hFile,
         (LPCVOID) pBuffer, (DWORD) bytesToWrite,
-        &nWritten, (LPOVERLAPPED) pOverlapped);
+        &written, (LPOVERLAPPED) pOverlapped);
     // it was a regular reading
     if (nullptr == pOverlapped) {
         // check return status
         if (FALSE == bRes) {
-            return eResult::ERR_FAILED;
+            return {eResult::ERR_FAILED, 0};
         }
-        // return number of written bytes
-        if (pWrittenBytes) {
-            *pWrittenBytes = nWritten;
-        }
-        if (bytesToWrite != (size_t) nWritten) {
-            return eResult::ERR_FAILED;
+        if (bytesToWrite != (size_t) written) {
+            return {eResult::ERR_FAILED, 0};
         }
     } else {
         // it was an overlapped reading
@@ -451,7 +438,7 @@ eResult write(handle hFile, const void *pBuffer,
             break;
 
         default:
-            return eResult::ERR_FAILED;
+            return {eResult::ERR_FAILED, 0};
         }
     }
 
@@ -463,7 +450,7 @@ eResult write(handle hFile, const void *pBuffer,
         const size_t written = fwrite(pBuffer, bytesToWrite, 1, (FILE *) hFile);
         const int res = ferror((FILE *) hFile);
         if (res) {
-            return eResult::ERR_FAILED;
+            return {eResult::ERR_FAILED, 0};
         }
 
         // return number of written bytes
@@ -471,17 +458,18 @@ eResult write(handle hFile, const void *pBuffer,
             *pWrittenBytes = written;
         }
         if (bytesToWrite != (size_t) written) {
-            return eResult::ERR_FAILED;
+            return {eResult::ERR_FAILED, 0};
         }
     }
 
 #endif // defined(_WINDOWS)
 
-    return eResult::OK;
+    return {eResult::OK, written};
 
-} // eResult write(handle hFile, const void *pBuffer,
+} // std::tuple<eResult, size_t> write(handle hFile, const void *pBuffer,
 
 #if defined(_WINDOWS)
+#pragma pack(push, 1)
 typedef union
 {
     // 64-bit position value
@@ -497,11 +485,14 @@ typedef union
     } parts;
 
 } FILE_POSITION;
+#pragma pack(pop)
 #endif // defined(_WINDOWS)
 
-eResult set_pointer(handle hFile, const int64_t distanceToMove,
-    uint64_t *pNewPosition, const ePosition moveMethod)
+std::tuple<eResult, uint64_t> set_pointer(handle hFile,
+    const int64_t distanceToMove, const ePosition moveMethod)
 {
+    uint64_t newPosition;
+
 #if defined(_WINDOWS)
 
     DWORD dwMoveMethod;
@@ -533,14 +524,11 @@ eResult set_pointer(handle hFile, const int64_t distanceToMove,
 
         dwRes = GetLastError();
         if (ERROR_SUCCESS != dwRes) {
-            return eResult::ERR_FAILED;
+            return {eResult::ERR_FAILED, 0};
         }
     }
 
-    // save the new position
-    if (pNewPosition) {
-        *pNewPosition = pos.position;
-    }
+    newPosition = pos.position;
 
 #else // !defined(_WINDOWS)
 
@@ -566,17 +554,14 @@ eResult set_pointer(handle hFile, const int64_t distanceToMove,
     // move the file pointer
     res = fseek((FILE *) hFile, distanceToMove, dwMoveMethod);
     if (res) {
-        return eResult::ERR_FAILED;
+        return {eResult::ERR_FAILED, 0};
     }
 
-    // save the new position
-    if (pNewPosition) {
-        *pNewPosition = ftell((FILE *) hFile);
-    }
+    newPosition = ftell((FILE *) hFile);
 
 #endif // defined(_WINDOWS)
 
-    return eResult::OK;
+    return {eResult::OK, newPosition};
 
 } // eResult set_pointer(handle hFile, const int64_t distanceToMove,
 
@@ -620,8 +605,10 @@ eResult wait_io(handle hFile, OVRLPD * const pOverlapped,
 
 } // eResult wait_io(handle hFile, OVRLPD * const pOverlapped,
 
-eResult get_size(handle hFile, uint64_t &fileSize)
+std::tuple<eResult, uint64_t> get_size(handle hFile)
 {
+    uint64_t fileSize = 0;
+
 #if defined(_WINDOWS)
 
     BOOL bRes;
@@ -629,7 +616,7 @@ eResult get_size(handle hFile, uint64_t &fileSize)
     // get the size
     bRes = GetFileSizeEx((HANDLE) hFile, (PLARGE_INTEGER) &fileSize);
     if (FALSE == bRes) {
-        return eResult::ERR_FAILED;
+        return {eResult::ERR_FAILED, 0};
     }
 
 #else // !defined(_WINDOWS)
@@ -640,13 +627,13 @@ eResult get_size(handle hFile, uint64_t &fileSize)
     // get the current position
     res = fgetpos((FILE *) hFile, &curPos);
     if (res) {
-        return eResult::ERR_FAILED;
+        return {eResult::ERR_FAILED, 0};
     }
 
     // rewind the file and query the size
     res = fseek((FILE *) hFile, 0, SEEK_END);
     if (res) {
-        return eResult::ERR_FAILED;
+        return {eResult::ERR_FAILED, 0};
     }
     fileSize = ftell((FILE *) hFile);
 
@@ -655,55 +642,38 @@ eResult get_size(handle hFile, uint64_t &fileSize)
 
 #endif // defined(_WINDOWS)
 
-    return eResult::OK;
+    return {eResult::OK, fileSize};
 
-} // eResult get_size(handle hFile, uint64_t &fileSize)
+} // std::tuple<eResult, uint64_t> get_size(handle hFile)
 
-eResult get_size(const wchar_t *pwFile, uint64_t &fileSize)
+std::tuple<eResult, uint64_t> get_size(const wchar_t *pwFile)
 {
-    handle hFile = nullptr;
-    eResult res;
-
     // open the file
-    res = open(hFile, pwFile,
+    auto file = open(pwFile,
         eAccess::Read, eAccess::Read,
         eDisposition::OpenExisting, eFlag::Normal);
-    if (eResult::OK != res) {
-        return res;
+    if (!file.get()) {
+        return {eResult::ERR_OPEN_FILE, 0};
+    }
+
+    return get_size(file.get());
+
+} // std::tuple<eResult, uint64_t> get_size(const wchar_t *pwFile)
+
+std::tuple<eResult, uint64_t> get_size(const char *pcFile)
+{
+    // open the file
+    auto file = open(pcFile,
+        eAccess::Read, eAccess::Read,
+        eDisposition::OpenExisting, eFlag::Normal);
+    if (!file.get()) {
+        return {eResult::ERR_OPEN_FILE, 0};
     }
 
     // query the size
-    res = get_size(hFile, fileSize);
+    return get_size(file.get());
 
-    // close the file
-    close(hFile);
-
-    return res;
-
-} // eResult get_size(const wchar_t *pwFile, uint64_t &fileSize)
-
-eResult get_size(const char *pcFile, uint64_t &fileSize)
-{
-    handle hFile = nullptr;
-    eResult res;
-
-    // open the file
-    res = open(hFile, pcFile,
-        eAccess::Read, eAccess::Read,
-        eDisposition::OpenExisting, eFlag::Normal);
-    if (eResult::OK != res) {
-        return res;
-    }
-
-    // query the size
-    res = get_size(hFile, fileSize);
-
-    // close the file
-    close(hFile);
-
-    return res;
-
-} // eResult get_size(const char *pcFile, uint64_t &fileSize)
+} // std::tuple<eResult, uint64_t> get_size(const char *pcFile)
 
 #if defined(_WINDOWS)
 
@@ -715,12 +685,12 @@ enum
 };
 
 template <typename char_t, typename function0_t, typename function1_t>
-eResult get_sector_size(const char_t *pFile, size_t &sectorSize,
+std::tuple<eResult, size_t> get_sector_size(const char_t *pFile,
     function0_t get_full_path_name, function1_t get_disk_free_space)
 {
     // check error(s)
     if (nullptr == pFile) {
-        return eResult::ERR_NULLPTR;
+        return {eResult::ERR_NULLPTR, 0};
     }
 
     BOOL bRes;
@@ -731,7 +701,7 @@ eResult get_sector_size(const char_t *pFile, size_t &sectorSize,
     const size_t path_len = get_full_path_name(pFile,
         FILE_NAME_BUFFER_SIZE - 1, cBuf, (char_t **) 0);
     if (0 == path_len) {
-        return eResult::ERR_FAILED;
+        return {eResult::ERR_FAILED, 0};
     }
 
     // found a share name
@@ -757,67 +727,54 @@ eResult get_sector_size(const char_t *pFile, size_t &sectorSize,
         &sectorsPerCluster, &bytesPerSector,
         &numberOfFreeClusters, &totalNumberOfClusters);
     if (FALSE == bRes) {
-        return eResult::ERR_FAILED;
+        return {eResult::ERR_FAILED, 0};
     }
 
-    // save the value
-    sectorSize = bytesPerSector;
+    return {eResult::OK, bytesPerSector};
 
-    return eResult::OK;
-
-} // eResult get_sector_size(const char_t *pFile, size_t &sectorSize,
+} // std::tuple<eResult, size_t> get_sector_size(const char_t *pFile,
 
 } // namespace
 
 #endif // defined(_WINDOWS)
 
-eResult get_sector_size(const wchar_t *pwFile, size_t &sectorSize)
+std::tuple<eResult, size_t> get_sector_size(const wchar_t *pwFile)
 {
-    eResult res = eResult::OK;
-
     // check error(s)
     if (nullptr == pwFile) {
-        return eResult::ERR_NULLPTR;
+        return {eResult::ERR_NULLPTR, 0};
     }
 
 #if defined(_WINDOWS)
 
-    res = get_sector_size(pwFile, sectorSize,
-        GetFullPathNameW, GetDiskFreeSpaceW);
+    return get_sector_size(pwFile, GetFullPathNameW, GetDiskFreeSpaceW);
 
 #else // !defined(_WINDOWS)
 
-    sectorSize = 4096;
+    return {eResult::OK, 4096};
 
 #endif // defined(_WINDOWS)
 
-    return res;
+} // std::tuple<eResult, size_t> get_sector_size(const wchar_t *pwFile)
 
-} // eResult get_sector_size(const wchar_t *pwFile, size_t &sectorSize)
-
-eResult get_sector_size(const char *pcFile, size_t &sectorSize)
+std::tuple<eResult, size_t> get_sector_size(const char *pcFile)
 {
-    eResult res = eResult::OK;
-
     // check error(s)
     if (nullptr == pcFile) {
-        return eResult::ERR_NULLPTR;
+        return {eResult::ERR_NULLPTR, 0};
     }
 
 #if defined(_WINDOWS)
 
-    res = get_sector_size(pcFile, sectorSize,
-        GetFullPathNameA, GetDiskFreeSpaceA);
+    return get_sector_size(pcFile, GetFullPathNameA, GetDiskFreeSpaceA);
 
 #else // !defined(_WINDOWS)
 
-    sectorSize = 4096;
+    return {eResult::OK, 4096};
 
 #endif // defined(_WINDOWS)
 
-    return res;
-
-} // eResult sector_size(const char *pcFile, size_t sectorSize)
+} // std::tuple<eResult, size_t> get_sector_size(const char *pcFile)
 
 eResult cancel_io(handle hFile)
 {
@@ -837,12 +794,14 @@ eResult cancel_io(handle hFile)
 
 } // eResult cancel_io(handle hFile)
 
-eResult close_overlapped_control(OVRLPD * const pOverlapped)
+void close_overlapped_control(OVRLPD * const pOverlapped)
 {
     // check error(s)
     if (nullptr == pOverlapped) {
-        return eResult::ERR_NULLPTR;
+        return;
     }
+
+    UNUSED(pOverlapped);
 
 #if defined(_WINDOWS)
 
@@ -852,31 +811,13 @@ eResult close_overlapped_control(OVRLPD * const pOverlapped)
     CloseHandle(p->hEvent);
     delete(p);
 
-    return eResult::OK;
-
 #else // !defined(_WINDOWS)
 
-    return eResult::ERR_NOT_SUPPORTED;
+    UNUSED(pOverlapped);
 
 #endif // defined(_WINDOWS)
 
 } // eResult close_overlapped_control(OVRLPD * const pOverlapped)
-
-eResult close(handle hFile)
-{
-#if defined(_WINDOWS)
-
-    CloseHandle((HANDLE) hFile);
-
-#else // !defined(_WINDOWS)
-
-    fclose((FILE *) hFile);
-
-#endif // defined(_WINDOWS)
-
-    return eResult::OK;
-
-} // eResult close(handle hFile)
 
 } // namespace file
 } // namespace dimanche
