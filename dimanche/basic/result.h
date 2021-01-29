@@ -1,3 +1,5 @@
+﻿// copyright (c) 2013 Victor Cherepanov
+// distributed under BSD 3-clause license
 
 #pragma once
 
@@ -15,6 +17,8 @@ enum class eResult : int32_t {
 
     // errors are negative values
     ERR_CALL_CONTEXT = -20,
+    ERR_OUT_OF_RANGE = -14,
+    ERR_OPEN_FILE = -13,
     ERR_ALIGNMENT = -12,
     ERR_NOT_SUPPORTED = -11,
     ERR_END_OF_STREAM = -10,
@@ -36,9 +40,18 @@ enum class eResult : int32_t {
 
 };
 
-const std::wstring GetErrorDescription(const eResult result);
+const std::wstring GetResultDescription(const eResult result);
 
 } // namespace dimanche
+
+namespace std {
+
+inline
+std::wstring to_wstring(const dimanche::eResult result) {
+    return GetResultDescription(result);
+}
+
+} // namespace std
 
 // declare the library name
 #if defined(_WINDOWS)

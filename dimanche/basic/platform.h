@@ -1,3 +1,5 @@
+﻿// copyright (c) 2013 Victor Cherepanov
+// distributed under BSD 3-clause license
 
 #pragma once
 
@@ -44,7 +46,8 @@ void UNUSED(types_t ...) {}
 #endif /* defined(__cplusplus) */
 
 /* define the platform identifier */
-#if defined(_M_X64) || defined(_M_AMD64) || defined(__amd64__) || defined(__x86_64__)
+#if defined(_M_X64) || defined(_M_AMD64) || defined(__amd64__) || \
+    defined(__x86_64__)
 
 /* declare Intel x64 / AMD64 platfrom */
 #ifndef _X64

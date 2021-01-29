@@ -1,3 +1,5 @@
+﻿// copyright (c) 2013 Victor Cherepanov
+// distributed under BSD 3-clause license
 
 #include <dimanche/basic/result.h>
 
@@ -16,6 +18,9 @@ struct
 
 } ErrorDescriptions[] =
 {
+    DECL(eResult::ERR_CALL_CONTEXT, L"Function doesn't save call context correctly"),
+    DECL(eResult::ERR_OPEN_FILE, L"Can't open the file"),
+    DECL(eResult::ERR_ALIGNMENT, L"Alignmen value is invalid or not supported"),
     DECL(eResult::ERR_NOT_SUPPORTED, L"Operational mode or feature is not supported."),
     DECL(eResult::ERR_END_OF_STREAM, L"End of media/file stream is reached."),
     DECL(eResult::ERR_BAD_SIZE, L"Provided size value is invalid."),
@@ -40,7 +45,7 @@ struct
 
 } // namespace
 
-const std::wstring GetErrorDescription(const eResult result)
+const std::wstring GetResultDescription(const eResult result)
 {
     const wchar_t *pDescription = L"description is not available";
 
@@ -53,6 +58,7 @@ const std::wstring GetErrorDescription(const eResult result)
     }
 
     return pDescription;
-}
+
+} // const std::wstring GetResultDescription(const eResult result)
 
 } // namespace dimanche

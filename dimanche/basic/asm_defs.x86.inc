@@ -1,8 +1,8 @@
-; copyright (c) 2013 Victor Cherepanov
+﻿; copyright (c) 2013 Victor Cherepanov
 ; distributed under BSD 3-clause license
 
-%ifndef __DIMANCHE_SYSTEM_ASM_DEFS_INC
-%define __DIMANCHE_SYSTEM_ASM_DEFS_INC
+%ifndef __DIMANCHE_BASIC_ASM_DEFS_X86_INC
+%define __DIMANCHE_BASIC_ASM_DEFS_X86_INC
 
 
 ;
@@ -643,4 +643,4 @@ default rel
 %define _QWORD_r15d r15
 %define _QWORD_r15 r15
 
-%endif ; __DIMANCHE_SYSTEM_ASM_DEFS_INC
+%endif ; __DIMANCHE_BASIC_ASM_DEFS_X86_INC
