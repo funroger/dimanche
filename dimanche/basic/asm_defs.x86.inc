@@ -1,4 +1,4 @@
-﻿; copyright (c) 2013 Victor Cherepanov
+; copyright (c) 2013 Victor Cherepanov
 ; distributed under BSD 3-clause license
 
 %ifndef __DIMANCHE_BASIC_ASM_DEFS_X86_INC

@@ -1,3 +1,5 @@
+; copyright (c) 2013 Victor Cherepanov
+; distributed under BSD 3-clause license
 
 %include "dimanche/basic/asm_defs.x86.inc"
 
