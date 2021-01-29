@@ -28,6 +28,7 @@ SET PLATFORM=win64
 SET PREFIX=""
 GOTO DO
 
+# for printing listing add -E
 
 :DO
 %NASM% ^
