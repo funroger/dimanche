@@ -1,3 +1,5 @@
+; copyright (c) 2013 Victor Cherepanov
+; distributed under BSD 3-clause license
 
 %ifndef __DIMANCHE_SYSTEM_ASM_DEFS_INC
 %define __DIMANCHE_SYSTEM_ASM_DEFS_INC

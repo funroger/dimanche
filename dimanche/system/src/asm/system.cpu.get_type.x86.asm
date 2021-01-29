@@ -1,5 +1,5 @@
 
-%include "dimanche/system/asm_defs.inc"
+%include "dimanche/basic/asm_defs.x86.inc"
 
 section .data
 

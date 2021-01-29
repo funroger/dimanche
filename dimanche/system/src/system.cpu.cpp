@@ -1,6 +1,7 @@
 
 #include <dimanche/system/cpu.h>
-#include <dimanche/system/intrinsics.h>
+
+#include <dimanche/basic/intrinsics.h>
 #include <dimanche/system/inc/cpu_internal.h>
 
 #if defined(_X86) || defined(_X64)
@@ -9,7 +10,7 @@ IMPL_PROC_2(di_system_cpu_reset_state, mmx, avx);
 
 #else // !(defined(_X86) || defined(_X64))
 
-IMPL_PROC_0(di_system_cpu_reset_state, mmx, avx);
+IMPL_PROC_0(di_system_cpu_reset_state);
 
 #endif // defined(_X86) || defined(_X64)
 
@@ -51,8 +52,7 @@ void di_system_cpu_reset_state_c() {
 void ResetState(void)
 {
     di_system_cpu_reset_state();
-
-} // void ResetState(void)
+}
 
 } // namespace cpu
 } // namespace system

@@ -22,14 +22,12 @@
     <ClInclude Include="..\..\dimanche\system\cpu.h" />
     <ClInclude Include="..\..\dimanche\system\cpu_opt.h" />
     <ClInclude Include="..\..\dimanche\system\inc\cpu_internal.h" />
-    <ClInclude Include="..\..\dimanche\system\intrinsics.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dimanche\system\src\system.cpu.cpp" />
     <ClCompile Include="..\..\dimanche\system\src\system.cpu.get_type.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\dimanche\system\asm_defs.inc" />
     <CustomBuild Include="..\..\dimanche\system\src\asm\system.cpu.get_type.x86.asm">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
