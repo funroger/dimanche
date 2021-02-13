@@ -17,6 +17,7 @@ enum class eResult : int32_t {
 
     // errors are negative values
     ERR_CALL_CONTEXT = -20,
+    ERR_BAD_DIM = -15,
     ERR_OUT_OF_RANGE = -14,
     ERR_OPEN_FILE = -13,
     ERR_ALIGNMENT = -12,
