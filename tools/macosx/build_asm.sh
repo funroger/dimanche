@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # $1 path to DIMANCHE root
 # $2 architecture (win32/x86/x64)
@@ -15,22 +15,34 @@ FILE_NAME=${FULL_FILE_NAME%%.asm}
 DST_FILE=$4$FILE_NAME.o
 NASM=nasm
 
+NC='\033[0m' # No Color
+RED='\033[1;91m'
+ERROR="${RED}Error${NC}"
+
+
 DEBUG_FORMAT=
 PLATFORM=
 PREFIX=
 
 if [ "$ARCH" == "x86" ]
 then
+
 DEBUG_FORMAT=dwarf
 PLATFORM=macho32
 PREFIX="_"
-fi
 
-if [ "$ARCH" == "x64" ]
+elif [ "$ARCH" == "x64" ]
 then
+
 DEBUG_FORMAT=dwarf
 PLATFORM=macho64
 PREFIX=""
+
+else
+
+echo "$ERROR: wrong architecture set <$ARCH>"
+exit 1
+
 fi
 
 # for printing listing add -E
