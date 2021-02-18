@@ -33,7 +33,7 @@ struct
     DECL(eResult::ERR_BAD_FORMAT, L"The format provided is invalid."),
     DECL(eResult::ERR_NULLPTR, L"One or more parameters is nullptr pointer. Real data is expected."),
 
-    DECL(eResult::OK, L"Everything is just fine"),
+    {eResult::OK, L"eResult::OK"},
 
     DECL(eResult::WRN_NEED_MORE_DATA, L"Provided data is not enough for encode/decode. More data is required."),
     DECL(eResult::WRN_NOT_READY, L"Processing is in progress."),

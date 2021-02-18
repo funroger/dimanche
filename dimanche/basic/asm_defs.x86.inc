@@ -12,7 +12,10 @@
 ; set memory model
 default rel
 
-; set basic defines
+;
+; set platform defines
+;
+
 %ifidn __OUTPUT_FORMAT__, win32
 %define _X86
 %define _WINDOWS
@@ -43,17 +46,49 @@ default rel
 %define _LINUX
 %endif
 
+;
+; set data defines
+;
+
+%assign byte_size 1
+%assign word_size 2
+%assign dword_size 4
+%assign qword_size 8
 
 %define BYTE DB
 %define WORD DW
 %define DWORD DD
+%define QWORD DQ
+
+%ifdef _X86
+%define PTR DD
+%define SIZE_T DD
+%define PTRDIFF_T DD
+%define resptr resd
+%define PTR_size 4
+%else ; _X64
+%define PTR DQ
+%define SIZE_T DQ
+%define PTRDIFF_T DQ
+%define resptr resq
+%define PTR_size 8
+%endif
 
 
 ; set shuffle constants
+%assign CLONE_EVEN_WORDS 10100000b
+%assign CLONE_ODD_WORDS 11110101b
+
 %assign CLONE_DWORD_0 00000000b
+%assign CLONE_EVEN_DWORDS 10100000b
+
+%assign SWAP_QWORDS 01001110b
 
 
+;
 ; set platform macros
+;
+
 %macro LOAD_ADDRESS 2
     lea %1, [%2]
 %endmacro
@@ -129,63 +164,55 @@ default rel
 ; declare macros for function implementing
 ;
 
+%macro PROC 1-2
+
+    %push
+    %xdefine _proc_name %1
+    %xdefine _directive %2 ; global/static
+
+    %ifnempty _directive
+    _directive _proc_name
+    %endif
+    align 10h
+    _proc_name:
+
+    %pop
+%endmacro ; PROC
+
 
 %macro _GET_ARG_TYPE 1
 
-    %define arg_type %1
+    %xdefine _arg_type %1
 
-    %ifidni PTR, arg_type
-        %define arg_type PTRDIFF_T
-    %elifidni SIZE_T, arg_type
-        %define arg_type PTRDIFF_T
-    %endif
+    %ifidni QWORD, _arg_type
 
-    %ifidni QWORD, arg_type
+        %xdefine _arg_reg_type _QWORD
+        %xdefine _arg_mem_type qword
 
-        %define arg_reg_type _QWORD
-        %define arg_mem_type qword
+    %elifidni DWORD, _arg_type
 
-    %elifidni DWORD, arg_type
+        %xdefine _arg_reg_type _DWORD
+        %xdefine _arg_mem_type dword
 
-        %define arg_reg_type _DWORD
-        %define arg_mem_type dword
+    %elifidni WORD, _arg_type
 
-    %elifidni WORD, arg_type
+        %xdefine _arg_reg_type _WORD
+        %xdefine _arg_mem_type word
 
-        %define arg_reg_type _WORD
-        %define arg_mem_type word
+    %elifidni BYTE, _arg_type
 
-    %elifidni BYTE, arg_type
-
-        %define arg_reg_type _BYTE
-        %define arg_mem_type byte
-
-    %elifidni PTRDIFF_T, arg_type
-
-        %ifdef _X64
-            %define arg_reg_type _QWORD
-            %define arg_mem_type qword
-        %else
-            %define arg_reg_type _DWORD
-            %define arg_mem_type dword
-        %endif
+        %xdefine _arg_reg_type _BYTE
+        %xdefine _arg_mem_type byte
 
     %else
         %fatal unknown argument type %1
     %endif
-
-    %undef arg_type
 
 %endmacro ; _GET_ARG_TYPE
 
 
 %macro DECL_ARGS 0-*
 
-    %ifndef _decl_args_second_declaration
-        %define _decl_args_second_declaration
-    %else
-        %warning "it's not recommended to have 2 DECL_ARGS in one file."
-    %endif
 
     ; parameters are: for every argument TYPE + name
     ; ex. PTR, pSrc, SIZE_T, size, WORD, value
@@ -194,28 +221,29 @@ default rel
         %fatal number of passed arguments should be even (type + name)
     %endif
 
-    %assign arg_idx 0
+    %assign _arg_idx 0
     %ifdef _X64
-        %assign arg_offset 10h
+        %assign _arg_offset 10h
     %else
-        %assign arg_offset 08h
+        %assign _arg_offset 08h
     %endif
 
     %rep %0 / 2
         _GET_ARG_TYPE %1
         %rotate 1
 
-        %if arg_idx < _NUM_REG_ARGS
-            %xdefine %1 TO %+ arg_reg_type(_ARG_ %+ arg_idx)
+        %if _arg_idx < _NUM_REG_ARGS
+            %xdefine %1 TO %+ _arg_reg_type(_ARG_ %+ _arg_idx)
         %else
-            %xdefine %1 arg_mem_type [_ARGS_BASE + arg_offset]
-            %assign arg_offset arg_offset + _GEN_REG_SIZE
+            %xdefine %1 _arg_mem_type [_ARGS_BASE + _arg_offset]
         %endif
-        %undef arg_reg_type
-        %undef arg_mem_type
+         %assign _arg_offset _arg_offset + _GEN_REG_SIZE
+
+        %undef _arg_reg_type
+        %undef _arg_mem_type
         %rotate 1
 
-        %assign arg_idx arg_idx + 1
+        %assign _arg_idx _arg_idx + 1
     %endrep
 
 %endmacro ; DECL_ARGS
@@ -223,11 +251,12 @@ default rel
 
 %macro _CHECK_NON_VLTL_REG 1-*
 
-    %define reg_to_find %1
+    %xdefine _reg_to_find %1
+    %rotate 1
 
     %rep %0 - 1
-        %ifidni reg_to_find, %2
-            %define found
+        %ifidni _reg_to_find, %1
+            %define _found
         %endif
         %rotate 1
     %endrep
@@ -239,10 +268,10 @@ default rel
 
     %rep %0
         _CHECK_NON_VLTL_REG %1, _NON_VLTL_GEN_REG_LIST, _NON_VLTL_XMM_REG_LIST
-        %ifndef found
-            %fatal is register reg_to_find to save?
+        %ifndef _found
+            %fatal is register %1 to save?
         %else
-            %undef found
+            %undef _found
         %endif
 
         %rotate 1
@@ -253,50 +282,47 @@ default rel
 
 %macro _PARSE_NON_VLTL_REG 1-*
 
-    %ifndef regs_stack_size
-        %assign regs_stack_size 0
+    %ifndef _regs_stack_size
+        %assign _regs_stack_size 0
     %endif
-    %xdefine reg_to_save %1
+    %xdefine _reg_to_save %1
+    %rotate 1
 
     %rep %0 - 1
-        %ifidni reg_to_save, %2
-            %xdefine %2%[_store] regs_stack_size
-            %assign regs_stack_size regs_stack_size + reg_size
+        %ifidni _reg_to_save, %1
+            %assign %1_store _regs_stack_size
+            %assign _regs_stack_size _regs_stack_size + _reg_size
         %endif
         %rotate 1
     %endrep
-
-    %undef reg_to_save
 
 %endmacro ; _PARSE_NON_VLTL_REG
 
 
 %macro _PARSE_NON_VLTL_REGS 1-*
 
-    %assign reg_size %1
+    %assign _reg_size %1
+    %rotate 1
 
     %rep %0 - 1
-        _PARSE_NON_VLTL_REG %2, USED_REGS
+        _PARSE_NON_VLTL_REG %1, USED_REGS
         %rotate 1
     %endrep
-
-    %undef reg_size
 
 %endmacro ; _PARSE_NON_VLTL_REGS
 
 
 %macro _SAVE_NON_VLTL_REGS 1-*
 
-    %define save_instr %1
+    %xdefine _save_instr %1
+    %rotate 1
 
     %rep %0 - 1
-        %ifdef %2%[_store]
-            save_instr [_REGS_BASE + %2%[_store]], %2
+        %ifnum %1_store
+            _save_instr [_REGS_BASE + %1_store], %1
         %endif
         %rotate 1
     %endrep
-
-    %undef save_instr
 
 %endmacro ; _SAVE_NON_VLTL_REGS
 
@@ -312,6 +338,64 @@ default rel
 %endmacro ; DECL_USED_REGS
 
 
+%macro _DECL_VARS 1-*
+
+    %xdefine _var_type %1
+    %assign _var_size %1_size
+    %rotate 1
+
+    ; parse the variable list
+    %rep %0 - 1
+        %xdefine %1 _var_type [_VARS_BASE + _local_vars_offset]
+        %assign _local_vars_offset _local_vars_offset + _var_size
+
+        %rotate 1
+    %endrep
+
+%endmacro ; _DECL_VARS
+
+
+%macro DECL_LOCAL_VARS 0-*
+
+    ; parameters are the list of local variables (ex. PTR,p, DWORD,d)
+
+    %xdefine _qword_vars
+    %xdefine _dword_vars
+    %xdefine _word_vars
+    %xdefine _byte_vars
+
+    %assign _vars_stack_size 0
+
+    %if %0 & 1
+        %fatal number of passed arguments should be even (type + name)
+    %endif
+
+    ; parse the variable list
+    %rep %0 / 2
+        _GET_ARG_TYPE %1
+        %rotate 1
+
+        %ifempty _%[_arg_mem_type]_vars
+            %xdefine _%[_arg_mem_type]_vars %1
+        %else
+            %xdefine _%[_arg_mem_type]_vars _%[_arg_mem_type]_vars, %1
+        %endif
+
+        %assign _vars_stack_size _vars_stack_size + %[_arg_mem_type]_size
+
+        %rotate 1
+    %endrep
+
+    %assign _local_vars_offset 0
+
+    _DECL_VARS qword, _qword_vars
+    _DECL_VARS dword, _dword_vars
+    _DECL_VARS word, _word_vars
+    _DECL_VARS byte, _byte_vars
+
+%endmacro ; DECL_LOCAL_VARS
+
+
 %macro ENTER_PROC 0-1
 
     ; the parameter is an optional 'use the stack register as the base' flag
@@ -320,37 +404,37 @@ default rel
     push _BASE_REG
     mov _BASE_REG, STACK_REG
 
-    %ifndef vars_stack_size
-        %assign vars_stack_size 0
+    %ifndef _vars_stack_size
+        %assign _vars_stack_size 0
     %endif
 
-    %ifndef regs_stack_size
-        %assign regs_stack_size 0
+    %ifndef _regs_stack_size
+        %assign _regs_stack_size 0
     %endif
 
     ; align variable storage to store registers by aligned addresses
-    %ifdef _X64
-    %if %0
-        %assign stack_align (vars_stack_size + regs_stack_size) % 16
-        %assign vars_stack_size vars_stack_size + stack_align
+    %ifdef _X86
+        %assign _stack_align (4 - (_vars_stack_size + _regs_stack_size)) % 4
+    %else ; _X64
+        %assign _stack_align (16 - (_vars_stack_size + _regs_stack_size)) % 16
     %endif
-    %endif
+    %assign _vars_stack_size _vars_stack_size + _stack_align
 
     ; allocate stack memory
-    %if vars_stack_size + regs_stack_size
-        sub STACK_REG, vars_stack_size + regs_stack_size
+    %if _vars_stack_size + _regs_stack_size
+        sub STACK_REG, _vars_stack_size + _regs_stack_size
     %endif
 
     ; create base register
-    %if %0
-        %define _VARS_BASE STACK_REG
-        %define _REGS_BASE STACK_REG + vars_stack_size
-        %define _ARGS_BASE STACK_REG + vars_stack_size + regs_stack_size
-        %assign _BASE_REG%[_store] vars_stack_size + regs_stack_size
+    %ifnempty %1
+        %xdefine _VARS_BASE STACK_REG
+        %xdefine _REGS_BASE STACK_REG + _vars_stack_size
+        %xdefine _ARGS_BASE STACK_REG + _vars_stack_size + _regs_stack_size
+        %assign _base_reg_store _vars_stack_size + _regs_stack_size
     %else
-        %define _VARS_BASE _BASE_REG - vars_stack_size - regs_stack_size
-        %define _REGS_BASE _BASE_REG - regs_stack_size
-        %define _ARGS_BASE _BASE_REG
+        %xdefine _VARS_BASE _BASE_REG - _vars_stack_size - _regs_stack_size
+        %xdefine _REGS_BASE _BASE_REG - _regs_stack_size
+        %xdefine _ARGS_BASE _BASE_REG
     %endif
 
     _SAVE_NON_VLTL_REGS mov, _NON_VLTL_GEN_REG_LIST
@@ -361,12 +445,12 @@ default rel
 
 %macro _LOAD_NON_VLTL_REGS 1-*
 
-    %define load_instr %1
+    %xdefine _load_instr %1
+    %rotate 1
 
     %rep %0 - 1
-        %ifdef %2%[_store]
-            load_instr %2, [_REGS_BASE + %2%[_store]]
-            %undef %2%[_store]
+        %ifnum %1_store
+            _load_instr %1, [_REGS_BASE + %1_store]
         %endif
         %rotate 1
     %endrep
@@ -379,22 +463,14 @@ default rel
     _LOAD_NON_VLTL_REGS mov, _NON_VLTL_GEN_REG_LIST
     _LOAD_NON_VLTL_REGS movaps, _NON_VLTL_XMM_REG_LIST
 
-    %ifdef _BASE_REG%[_store]
-        add STACK_REG, _BASE_REG%[_store]
-        %undef _BASE_REG%[_store]
+    %ifdef _base_reg_store
+        add STACK_REG, _base_reg_store
     %else
         mov STACK_REG, _BASE_REG
     %endif
 
     pop _BASE_REG
     ret
-
-    %undef _VARS_BASE
-    %undef _REGS_BASE
-    %undef _ARGS_BASE
-
-    %undef vars_stack_size
-    %undef regs_stack_size
 
 %endmacro ; LEAVE_PROC
 
