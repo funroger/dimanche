@@ -1,5 +1,10 @@
 @echo off
 
+REM %0 path to this .cmd file
+REM %1 platform (win32/x86/x64)
+REM %2 path to an .asm file
+REM %3 output dir
+
 SET SRC_FILE=%2
 SET DST_FILE=%3\%~n2.obj
 SET DIMANCHE=%~dp0..\..
