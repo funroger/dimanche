@@ -37,11 +37,11 @@ enum class eCpuType : uint32_t {
     // SSE3 technology featured CPU (Pentium 4 Prescott, Athlon 64 Venice)
     sse3 = (1 << 5) | sse2,
     // supplemental SSE3 technology featured CPU (Core 2 Conroe)
-    sse3s = (1 << 6) | sse3,
+    ssse3 = (1 << 6) | sse3,
     // FMA technology featured CPU (Core iX Haswell or Broadwell)
     fma = (1 << 7),
     // SSE4.1 technology featured CPU (Core 2 Duo Penryn)
-    sse41 = (1 << 8) | sse3s,
+    sse41 = (1 << 8) | ssse3,
     // SSE4.2 technology featured CPU (Core iX Nehalem)
     sse42 = (1 << 9) | sse41,
     // advanced bit manipulation featured CPU (AMD Barcelona core)
