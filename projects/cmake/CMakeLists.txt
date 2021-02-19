@@ -2,9 +2,12 @@ cmake_minimum_required(VERSION 3.10)
 project(dimanche)
 
 # set common variables
-set(DIMANCHE_ROOT /Users/vcherepanov/git/dimanche)
+set(DIMANCHE_ROOT "../..")
 string(TOLOWER ${CMAKE_SYSTEM_NAME} System)
 set(Platform ${CMAKE_SYSTEM_PROCESSOR})
+if (${Platform} STREQUAL "AMD64")
+  set(Platform x86_64)
+endif()
 if (CMAKE_BUILD_TYPE)
   string(TOLOWER ${CMAKE_BUILD_TYPE} Configuration)
 else()
