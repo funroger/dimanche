@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 project(dimanche)
 
 # set common variables
-set(DIMANCHE_ROOT "../..")
+get_filename_component(DIMANCHE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}" DIRECTORY)
+get_filename_component(DIMANCHE_ROOT "${DIMANCHE_ROOT}" DIRECTORY)
 string(TOLOWER ${CMAKE_SYSTEM_NAME} System)
 set(Platform ${CMAKE_SYSTEM_PROCESSOR})
 if (${Platform} STREQUAL "AMD64")
@@ -17,6 +18,7 @@ endif()
 message(STATUS "System: " ${System})
 message(STATUS "Platform: " ${Platform})
 message(STATUS "Configuration: " ${Configuration})
+message(STATUS "DIMANCHE root: " ${DIMANCHE_ROOT})
 
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 20)
