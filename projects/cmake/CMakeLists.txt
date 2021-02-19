@@ -24,11 +24,10 @@ message(STATUS "DIMANCHE root: " ${DIMANCHE_ROOT})
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-function(DECL_TARGET ProjectName type)
+function(DECL_TARGET name type)
+  set(ProjectName di_${name})
+
   add_library(${ProjectName} ${type})
-  set_target_properties(${ProjectName} PROPERTIES
-    OUTPUT_NAME di_${ProjectName}
-  )
   set_target_properties(${ProjectName} PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}
     LIBRARY_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}
@@ -38,19 +37,21 @@ function(DECL_TARGET ProjectName type)
     PUBLIC ${DIMANCHE_ROOT}
   )
   if (${Platform} MATCHES "x86.*")
-    file(GLOB ASM_SOURCES ${DIMANCHE_ROOT}/dimanche/${ProjectName}/src/**.x86.asm) 
+    file(GLOB ASM_SOURCES ${DIMANCHE_ROOT}/dimanche/${name}/src/**.x86.asm) 
   elseif()
-    file(GLOB ASM_SOURCES ${DIMANCHE_ROOT}/dimanche/${ProjectName}/src/**.arm.asm) 
+    file(GLOB ASM_SOURCES ${DIMANCHE_ROOT}/dimanche/${name}/src/**.arm.asm) 
   endif()
-  file(GLOB C_SOURCES ${DIMANCHE_ROOT}/dimanche/${ProjectName}/src/**.c) 
-  file(GLOB CPP_SOURCES ${DIMANCHE_ROOT}/dimanche/${ProjectName}/src/**.cpp) 
+  file(GLOB C_SOURCES ${DIMANCHE_ROOT}/dimanche/${name}/src/**.c) 
+  file(GLOB CPP_SOURCES ${DIMANCHE_ROOT}/dimanche/${name}/src/**.cpp) 
   target_sources(${ProjectName}
     PUBLIC ${C_SOURCES} ${CPP_SOURCES}
   )
 
   foreach(dep ${ARGN})
-    add_dependencies(${ProjectName} ${dep})
+    add_dependencies(${ProjectName} di_${dep})
   endforeach()
+
+  unset(ProjectName)
 endfunction()
 
 DECL_TARGET(basic STATIC)
