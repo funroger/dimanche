@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 project(dimanche)
 
 # set common variables
@@ -27,12 +27,20 @@ message(STATUS "DIMANCHE root: " ${DIMANCHE_ROOT})
 # specify tools
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+if(MSVC)
+  #string(REGEX REPLACE "/W[1-3]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  add_compile_options(/W4 /WX)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+else()
+  add_compile_options(-Wall -Wextra -pedantic -Werror)
+endif()
 #enable_language(ASM_NASM)
 #if(CMAKE_ASM_NASM_COMPILER_LOADED)
 #  set(CAN_USE_ASSEMBLER TRUE)
 #else()
 #  message(FATAL_ERROR "NASM is required. Please, download the latest NASM and make sure it can be found by CMake")
 #endif()
+set(CMAKE_SUPPRESS_REGENERATION true)
 
 
 # cross-platform variables
