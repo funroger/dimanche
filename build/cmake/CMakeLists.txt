@@ -1,4 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
+
+include(msvc.cmake)
+
 project(dimanche)
 
 # set common variables
@@ -28,9 +31,7 @@ message(STATUS "DIMANCHE root: " ${DIMANCHE_ROOT})
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 if(MSVC)
-  #string(REGEX REPLACE "/W[1-3]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-  add_compile_options(/W4 /WX)
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  SET_MSVC_GLOBAL_SETTINGS()
 else()
   add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
@@ -85,6 +86,10 @@ function(DECL_TARGET name type)
 
   # set library properties
   add_library(${ProjectName} ${type})
+  if(MSVC)
+    SET_MSVC_PROJECT_SETTINGS(${ProjectName})
+  endif()
+
   set_target_properties(${ProjectName} PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}/
     LIBRARY_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}/
