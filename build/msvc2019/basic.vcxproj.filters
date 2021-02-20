@@ -20,13 +20,13 @@
     <ClInclude Include="..\..\dimanche\basic\video_sample.h" />
     <ClInclude Include="..\..\dimanche\basic\video_stream_info.h" />
     <ClInclude Include="..\..\dimanche\basic\media_sample.h" />
-    <ClInclude Include="..\..\dimanche\basic\image_format.h" />
     <ClInclude Include="..\..\dimanche\basic\platform.h" />
-    <ClInclude Include="..\..\dimanche\basic\memory.h" />
     <ClInclude Include="..\..\dimanche\basic\templates.h" />
     <ClInclude Include="..\..\dimanche\basic\assert.h" />
-    <ClInclude Include="..\..\dimanche\basic\splitter.h" />
     <ClInclude Include="..\..\dimanche\basic\container_type.h" />
+    <ClInclude Include="..\..\dimanche\basic\alloc.h" />
+    <ClInclude Include="..\..\dimanche\basic\media_source.h" />
+    <ClInclude Include="..\..\dimanche\basic\intrinsics.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dimanche\basic\src\video_decoder.cpp">
@@ -38,11 +38,18 @@
     <ClCompile Include="..\..\dimanche\basic\src\image_allocator.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\dimanche\basic\src\memory.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\dimanche\basic\src\container_type.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\dimanche\basic\src\result.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dimanche\basic\src\alloc.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\dimanche\basic\asm_defs.x86.inc" />
+    <None Include="..\..\dimanche\basic\image.x86.inc" />
   </ItemGroup>
 </Project>

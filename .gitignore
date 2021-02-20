@@ -1,2 +1,5 @@
 _bin
 /script/__pycache__/*.pyc
+/build/msvc2019/*.user
+/build/msvc2019/.vs
+/build/msvc2019/*.db

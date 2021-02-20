@@ -36,10 +36,14 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename).obj</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Build %(Identity)</Message>
     </CustomBuild>
     <CustomBuild Include="..\..\dimanche\image_processing\src\asm\image_processing.color_conversion.nv12_to_bgra.x86.ssse3.asm">
       <FileType>Document</FileType>
@@ -47,10 +51,14 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename).obj</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Build %(Identity)</Message>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
@@ -60,14 +68,18 @@
     <None Include="..\..\dimanche\image_processing\inc\color_conversion.yuv_to_bgr_tables.x86.inc" />
     <CustomBuild Include="..\..\dimanche\image_processing\src\asm\image_processing.color_conversion.yuv_to_bgr_tables.x86.asm">
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename).obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Build %(Identity)</Message>
     </CustomBuild>
   </ItemGroup>
   <PropertyGroup Label="Globals">

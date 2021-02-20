@@ -1,17 +1,37 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "basic", "basic.vcxproj", "{0B94D8BC-E58E-4692-8649-87489D78063F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "av1_dec", "av1_dec.vcxproj", "{952D5454-501D-428F-8899-B2F041AF8B9B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "splitters", "splitters.vcxproj", "{39BB8CAE-32D8-4575-B4E8-B41CF6E30706}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BF664B02-F092-49C4-AD99-C566ABA9AB7D} = {BF664B02-F092-49C4-AD99-C566ABA9AB7D}
+		{0B94D8BC-E58E-4692-8649-87489D78063F} = {0B94D8BC-E58E-4692-8649-87489D78063F}
+	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vm", "vm.vcxproj", "{BF664B02-F092-49C4-AD99-C566ABA9AB7D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io", "io.vcxproj", "{BF664B02-F092-49C4-AD99-C566ABA9AB7D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0B94D8BC-E58E-4692-8649-87489D78063F} = {0B94D8BC-E58E-4692-8649-87489D78063F}
+	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpu", "cpu.vcxproj", "{5CF96786-A982-4E8F-8442-E33BF20F4435}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "system", "system.vcxproj", "{5CF96786-A982-4E8F-8442-E33BF20F4435}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0B94D8BC-E58E-4692-8649-87489D78063F} = {0B94D8BC-E58E-4692-8649-87489D78063F}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "memory", "memory.vcxproj", "{B9C922AE-5F8F-4FA5-8B5B-12F8B2F284C9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5CF96786-A982-4E8F-8442-E33BF20F4435} = {5CF96786-A982-4E8F-8442-E33BF20F4435}
+		{0B94D8BC-E58E-4692-8649-87489D78063F} = {0B94D8BC-E58E-4692-8649-87489D78063F}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test.vcxproj", "{73DFF428-F1C6-4C9F-A6BB-97CCFDCF3E37}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "image_processing", "image_processing.vcxproj", "{2500FBC3-22B2-415E-9699-E668F8B372C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,8 +81,35 @@ Global
 		{5CF96786-A982-4E8F-8442-E33BF20F4435}.release|x64.Build.0 = release|x64
 		{5CF96786-A982-4E8F-8442-E33BF20F4435}.release|x86.ActiveCfg = release|Win32
 		{5CF96786-A982-4E8F-8442-E33BF20F4435}.release|x86.Build.0 = release|Win32
+		{B9C922AE-5F8F-4FA5-8B5B-12F8B2F284C9}.debug|x64.ActiveCfg = debug|x64
+		{B9C922AE-5F8F-4FA5-8B5B-12F8B2F284C9}.debug|x64.Build.0 = debug|x64
+		{B9C922AE-5F8F-4FA5-8B5B-12F8B2F284C9}.debug|x86.ActiveCfg = debug|Win32
+		{B9C922AE-5F8F-4FA5-8B5B-12F8B2F284C9}.debug|x86.Build.0 = debug|Win32
+		{B9C922AE-5F8F-4FA5-8B5B-12F8B2F284C9}.release|x64.ActiveCfg = release|x64
+		{B9C922AE-5F8F-4FA5-8B5B-12F8B2F284C9}.release|x64.Build.0 = release|x64
+		{B9C922AE-5F8F-4FA5-8B5B-12F8B2F284C9}.release|x86.ActiveCfg = release|Win32
+		{B9C922AE-5F8F-4FA5-8B5B-12F8B2F284C9}.release|x86.Build.0 = release|Win32
+		{73DFF428-F1C6-4C9F-A6BB-97CCFDCF3E37}.debug|x64.ActiveCfg = Debug|x64
+		{73DFF428-F1C6-4C9F-A6BB-97CCFDCF3E37}.debug|x64.Build.0 = Debug|x64
+		{73DFF428-F1C6-4C9F-A6BB-97CCFDCF3E37}.debug|x86.ActiveCfg = Debug|Win32
+		{73DFF428-F1C6-4C9F-A6BB-97CCFDCF3E37}.debug|x86.Build.0 = Debug|Win32
+		{73DFF428-F1C6-4C9F-A6BB-97CCFDCF3E37}.release|x64.ActiveCfg = Release|x64
+		{73DFF428-F1C6-4C9F-A6BB-97CCFDCF3E37}.release|x64.Build.0 = Release|x64
+		{73DFF428-F1C6-4C9F-A6BB-97CCFDCF3E37}.release|x86.ActiveCfg = Release|Win32
+		{73DFF428-F1C6-4C9F-A6BB-97CCFDCF3E37}.release|x86.Build.0 = Release|Win32
+		{2500FBC3-22B2-415E-9699-E668F8B372C2}.debug|x64.ActiveCfg = Debug|x64
+		{2500FBC3-22B2-415E-9699-E668F8B372C2}.debug|x64.Build.0 = Debug|x64
+		{2500FBC3-22B2-415E-9699-E668F8B372C2}.debug|x86.ActiveCfg = Debug|Win32
+		{2500FBC3-22B2-415E-9699-E668F8B372C2}.debug|x86.Build.0 = Debug|Win32
+		{2500FBC3-22B2-415E-9699-E668F8B372C2}.release|x64.ActiveCfg = Release|x64
+		{2500FBC3-22B2-415E-9699-E668F8B372C2}.release|x64.Build.0 = Release|x64
+		{2500FBC3-22B2-415E-9699-E668F8B372C2}.release|x86.ActiveCfg = Release|Win32
+		{2500FBC3-22B2-415E-9699-E668F8B372C2}.release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1F019FF8-112F-45DD-BA9B-0AF0145E6F58}
 	EndGlobalSection
 EndGlobal

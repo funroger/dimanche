@@ -19,19 +19,67 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\dimanche\io\console.h" />
-    <ClInclude Include="..\..\dimanche\io\file.h" />
+    <ClInclude Include="..\..\dimanche\system\cpu.h" />
+    <ClInclude Include="..\..\dimanche\system\cpu_opt.h" />
+    <ClInclude Include="..\..\dimanche\system\inc\cpu_internal.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\dimanche\io\src\io.console.cpp" />
-    <ClCompile Include="..\..\dimanche\io\src\io.file.cpp" />
+    <ClCompile Include="..\..\dimanche\system\src\system.cpu.cpp" />
+    <ClCompile Include="..\..\dimanche\system\src\system.cpu.get_type.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\dimanche\system\src\asm\system.cpu.get_type.x86.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">$(IntDir)%(Filename).obj</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='release|Win32'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|Win32'">$(IntDir)%(Filename).obj</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='debug|x64'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|x64'">$(IntDir)%(Filename).obj</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='release|x64'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|x64'">$(IntDir)%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='release|Win32'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='release|x64'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='debug|x64'">Build %(Identity)</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\..\dimanche\system\src\asm\system.cpu.reset_state.x86.avx.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='release|Win32'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='release|x64'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='debug|x64'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|Win32'">$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|x64'">$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|x64'">$(IntDir)%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='release|Win32'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='release|x64'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='debug|x64'">Build %(Identity)</Message>
+    </CustomBuild>
+    <CustomBuild Include="..\..\dimanche\system\src\asm\system.cpu.reset_state.x86.mmx.asm">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='release|Win32'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='release|x64'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='debug|x64'">call $(SolutionDir)..\..\tools\win\build_asm.cmd $(SolutionDir)..\..\ $(Platform) %(FullPath) $(IntDir)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|Win32'">$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|x64'">$(IntDir)%(Filename).obj</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|x64'">$(IntDir)%(Filename).obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='release|Win32'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='release|x64'">Build %(Identity)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='debug|x64'">Build %(Identity)</Message>
+    </CustomBuild>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{BF664B02-F092-49C4-AD99-C566ABA9AB7D}</ProjectGuid>
+    <ProjectGuid>{5CF96786-A982-4E8F-8442-E33BF20F4435}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>vm</RootNamespace>
+    <RootNamespace>cpu</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>io</ProjectName>
+    <ProjectName>system</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|Win32'" Label="Configuration">
@@ -102,8 +150,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -118,8 +166,8 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -135,10 +183,10 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -156,10 +204,10 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>

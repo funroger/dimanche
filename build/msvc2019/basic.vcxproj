@@ -19,55 +19,41 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\dimanche\system\cpu.h" />
-    <ClInclude Include="..\..\dimanche\system\cpu_opt.h" />
-    <ClInclude Include="..\..\dimanche\system\inc\cpu_internal.h" />
+    <ClInclude Include="..\..\dimanche\basic\assert.h" />
+    <ClInclude Include="..\..\dimanche\basic\container_type.h" />
+    <ClInclude Include="..\..\dimanche\basic\alloc.h" />
+    <ClInclude Include="..\..\dimanche\basic\color_formats.h" />
+    <ClInclude Include="..\..\dimanche\basic\image.h" />
+    <ClInclude Include="..\..\dimanche\basic\image_allocator.h" />
+    <ClInclude Include="..\..\dimanche\basic\intrinsics.h" />
+    <ClInclude Include="..\..\dimanche\basic\media_sample.h" />
+    <ClInclude Include="..\..\dimanche\basic\platform.h" />
+    <ClInclude Include="..\..\dimanche\basic\resource.h" />
+    <ClInclude Include="..\..\dimanche\basic\result.h" />
+    <ClInclude Include="..\..\dimanche\basic\templates.h" />
+    <ClInclude Include="..\..\dimanche\basic\types.h" />
+    <ClInclude Include="..\..\dimanche\basic\video_decoder.h" />
+    <ClInclude Include="..\..\dimanche\basic\video_sample.h" />
+    <ClInclude Include="..\..\dimanche\basic\media_source.h" />
+    <ClInclude Include="..\..\dimanche\basic\video_stream_info.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\dimanche\system\src\system.cpu.cpp" />
-    <ClCompile Include="..\..\dimanche\system\src\system.cpu.get_type.cpp" />
+    <ClCompile Include="..\..\dimanche\basic\src\container_type.cpp" />
+    <ClCompile Include="..\..\dimanche\basic\src\alloc.cpp" />
+    <ClCompile Include="..\..\dimanche\basic\src\result.cpp" />
+    <ClCompile Include="..\..\dimanche\basic\src\video_decoder.cpp" />
+    <ClCompile Include="..\..\dimanche\basic\src\image.cpp" />
+    <ClCompile Include="..\..\dimanche\basic\src\image_allocator.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\dimanche\system\src\asm\system.cpu.get_type.x86.asm">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">$(IntDir)%(Filename).obj</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='release|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|Win32'">$(IntDir)%(Filename).obj</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='debug|x64'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|x64'">$(IntDir)%(Filename).obj</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='release|x64'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|x64'">$(IntDir)%(Filename).obj</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\dimanche\system\src\asm\system.cpu.reset_state.x86.avx.asm">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='release|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='release|x64'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='debug|x64'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|Win32'">$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|x64'">$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|x64'">$(IntDir)%(Filename).obj</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="..\..\dimanche\system\src\asm\system.cpu.reset_state.x86.mmx.asm">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='release|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='release|x64'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='debug|x64'">call ..\..\tools\win\build_asm.cmd $(Platform) %(Identity) $(IntDir)</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|Win32'">$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|x64'">$(IntDir)%(Filename).obj</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|x64'">$(IntDir)%(Filename).obj</Outputs>
-    </CustomBuild>
+    <None Include="..\..\dimanche\basic\asm_defs.x86.inc" />
+    <None Include="..\..\dimanche\basic\image.x86.inc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5CF96786-A982-4E8F-8442-E33BF20F4435}</ProjectGuid>
+    <ProjectGuid>{0B94D8BC-E58E-4692-8649-87489D78063F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>cpu</RootNamespace>
+    <RootNamespace>basic</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>system</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|Win32'" Label="Configuration">
@@ -134,12 +120,12 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_ALLOW_RTCc_IN_STL;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -150,12 +136,12 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_ALLOW_RTCc_IN_STL;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -164,12 +150,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release|Win32'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
@@ -185,12 +171,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level4</WarningLevel>
       <AdditionalIncludeDirectories>..\..</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
