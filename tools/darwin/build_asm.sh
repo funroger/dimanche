@@ -24,6 +24,11 @@ DEBUG_FORMAT=
 PLATFORM=
 PREFIX=
 
+if [ "$ARCH" == "x86_64" ]
+then
+ARCH=x64
+fi
+
 if [ "$ARCH" == "x86" ]
 then
 

@@ -27,6 +27,10 @@ IF /I [%ARCH%]==[win32] (
 SET ARCH=x86
 )
 
+IF /I [%ARCH%]==[x86_64] (
+SET ARCH=x64
+)
+
 IF /I [%ARCH%]==[x86] (
 
 SET PLATFORM=win32
