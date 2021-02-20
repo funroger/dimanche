@@ -51,10 +51,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\..\dimanche\image_processing\src\asm\image_processing.color_conversion.nv12_to_bgra.x86.avx2.asm">
+    <CustomBuild Include="..\..\dimanche\image_processing\src\asm\image_processing.color_conversion.nv12_to_bgra.avx2.x86.asm">
       <Filter>src\asm</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\..\dimanche\image_processing\src\asm\image_processing.color_conversion.nv12_to_bgra.x86.ssse3.asm">
+    <CustomBuild Include="..\..\dimanche\image_processing\src\asm\image_processing.color_conversion.nv12_to_bgra.ssse3.x86.asm">
       <Filter>src\asm</Filter>
     </CustomBuild>
     <CustomBuild Include="..\..\dimanche\image_processing\src\asm\image_processing.color_conversion.yuv_to_bgr_tables.x86.asm">
