@@ -3,6 +3,7 @@
 
 #include <dimanche/basic/assert.h>
 
+#include <climits>
 #include <memory>
 
 #if defined(_WINDOWS)
@@ -108,7 +109,7 @@ std::unique_ptr<char []> sl_get_file_name_w(const wchar_t *pwFile)
         // allocate file path
         size *= 2;
         fileName.reset(new (std::nothrow) char[size]);
-        if (nullptr == cFile) {
+        if (nullptr == fileName.get()) {
             return nullptr;
         }
         written = wcsrtombs(fileName.get(), &pw, size, nullptr);
@@ -119,14 +120,14 @@ std::unique_ptr<char []> sl_get_file_name_w(const wchar_t *pwFile)
 
 } // std::unique_ptr<char []> sl_get_file_name_w(const wchar_t *pwFile)
 
-int sl_test_file_c(const char *pcFile, const uint32_t fileAccessType)
+int sl_test_file_c(const char *pcFile, const eAccess accessType)
 {
     // check error(s)
     if (nullptr == pcFile) {
         return 0;
     }
 
-    if (eAccess::Read & fileAccessType)
+    if ((uint32_t) (eAccess::Read & accessType))
     {
         FILE *f;
 
@@ -209,8 +210,8 @@ unique_file_t open(const wchar_t *pwFile,
     }
 
     // open the file
-    auto file = open(fileName.get(), fileAccessType, fileShareMode,
-        fileCreationDisposition, fileFlags);
+    auto file = open(fileName.get(), accessType, shareMode,
+        creationDisposition, flags);
 
     return file;
 
@@ -234,12 +235,12 @@ unique_file_t open(const char *pcFile,
 
 #else // !defined(_WINDOWS)
 
-    UNUSED(fileShareMode);
+    UNUSED(shareMode);
+    FILE *hFile = nullptr;
 
     {
         const char *mode = nullptr;
-        const int bExist = sl_test_file_c(pcFile, fileAccessType);
-        FILE *hFile = nullptr;
+        const int bExist = sl_test_file_c(pcFile, accessType);
 
         // set the access mode
         switch (accessType)
@@ -250,12 +251,12 @@ unique_file_t open(const char *pcFile,
 
         case eAccess::Write:
             if ((eDisposition::CreateNew == creationDisposition) && (bExist)) {
-                return eResult::ERR_FAILED;
+                return nullptr;
             }
             mode = "wb";
             break;
 
-        case eAccess::Read | eAccess::Write:
+        case eAccess::ReadWrite:
             if (eDisposition::CreateNew == creationDisposition) {
                 if (bExist) {
                     return nullptr;
@@ -288,7 +289,7 @@ unique_file_t open(const char *pcFile,
             return nullptr;
         }
         // disable buffering if any
-        if (eFlag::NoBuffering & flags) {
+        if ((uint32_t) (eFlag::NoBuffering & flags)) {
             setbuf(hFile, nullptr);
         }
     }
@@ -320,8 +321,6 @@ std::unique_ptr<OVRLPD, overlapped_control_closer> initialize_overlapped_control
     return p;
 
 #else // !defined(_WINDOWS)
-
-    UNUSED(pOverlapped);
 
     return nullptr;
 
@@ -384,10 +383,6 @@ std::tuple<eResult, size_t> read(handle hFile, void *pBuffer,
         return {eResult::ERR_FAILED, 0};
     }
 
-    // return number of read bytes
-    if (pReadBytes) {
-        *pReadBytes = written;
-    }
     if (0 == written) {
         return {eResult::ERR_END_OF_STREAM, 0};
     }
@@ -445,18 +440,15 @@ std::tuple<eResult, size_t> write(handle hFile, const void *pBuffer,
 #else // !defined(_WINDOWS)
 
     UNUSED(pOverlapped);
+    size_t written;
 
     {
-        const size_t written = fwrite(pBuffer, bytesToWrite, 1, (FILE *) hFile);
+        written = fwrite(pBuffer, bytesToWrite, 1, (FILE *) hFile);
         const int res = ferror((FILE *) hFile);
         if (res) {
             return {eResult::ERR_FAILED, 0};
         }
 
-        // return number of written bytes
-        if (pWrittenBytes) {
-            *pWrittenBytes = written;
-        }
         if (bytesToWrite != (size_t) written) {
             return {eResult::ERR_FAILED, 0};
         }

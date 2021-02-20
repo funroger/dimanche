@@ -43,7 +43,7 @@ public:
             const string_t option(argv[i]);
 
             if (('-' == option[0]) || ('+' == option[0])) {
-                const string_t::size_type equalCharIdx = option.find('=');
+                const auto equalCharIdx = option.find('=');
                 string_t key, value;
 
                 if (string_t::npos == equalCharIdx) {
@@ -69,18 +69,18 @@ public:
 
     template <typename type_t> inline
     type_t Get(const string_t& key) const {
-        return CArgParser::Convert<type_t> (m_lut.at(key));
+        return CCmdArgs::Convert<type_t> (m_lut.at(key));
     }
 
     template <typename type_t> inline
-    type_t Get(const string_t &key, const type_t &default) const
+    type_t Get(const string_t &key, const type_t &def) const
     {
         auto iter = m_lut.find(key);
 
         if (m_lut.end() != iter) {
             return Convert<type_t> ((*iter).second);
         } else {
-            return default;
+            return def;
         }
     }
 

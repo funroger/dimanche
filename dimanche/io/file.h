@@ -19,7 +19,8 @@ enum class eAccess : uint32_t
     None = 0,
 
     Read = 1,
-    Write = 2
+    Write = 2,
+    ReadWrite = 3
 };
 
 inline
