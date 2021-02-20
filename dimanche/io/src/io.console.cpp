@@ -39,7 +39,7 @@ std::ostream & operator << (std::ostream &out,
 #if defined(_WINDOWS)
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color.color);
 #else // !defined(_WINDOWS)
-
+    UNUSED(color);
 #endif // defined(_WINDOWS)
 
     return out;
@@ -52,7 +52,7 @@ std::wostream & operator << (std::wostream &out,
 #if defined(_WINDOWS)
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color.color);
 #else // !defined(_WINDOWS)
-
+    UNUSED(color);
 #endif // defined(_WINDOWS)
 
     return out;
