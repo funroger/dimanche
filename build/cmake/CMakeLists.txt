@@ -51,13 +51,16 @@ function(COMPILE_ASM ProjectName OBJ_DIR)
 
   foreach(ASM_FILE ${ARGN})
     get_filename_component(ASM_FILE_NAME "${ASM_FILE}" NAME_WLE)
-    set(ASM_OBJ ${OBJ_DIR}/${ASM_FILE_NAME}.${OBJ_EXT}) 
+    set(ASM_OBJ ${OBJ_DIR}${ASM_FILE_NAME}.${OBJ_EXT}) 
     
     set_source_files_properties(${ASM_FILE} LANGUAGE ASM)
     add_custom_command(OUTPUT ${ASM_OBJ}
       COMMAND ${nasm_cmd_file}
       ARGS ${DIMANCHE_ROOT} ${Platform} ${ASM_FILE} ${OBJ_DIR}
       MAIN_DEPENDENCY ${ASM_FILE}
+    )
+    target_link_libraries(${ProjectName}
+      ${ASM_OBJ}
     )
   endforeach()
 
@@ -67,15 +70,17 @@ endfunction()
 function(DECL_TARGET name type)
   message(STATUS "Processing ${name}")
   set(ProjectName di_${name})
-  set(ProjectRoot ${DIMANCHE_ROOT}/dimanche/${name})
-  set(INTERMEDIATE_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}/${name})
+  set(ProjectRoot ${DIMANCHE_ROOT}/dimanche/${name}/)
+  set(INTERMEDIATE_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}/${name}/)
+
+  file(MAKE_DIRECTORY ${INTERMEDIATE_DIRECTORY})
 
   # set library properties
   add_library(${ProjectName} ${type})
   set_target_properties(${ProjectName} PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}
-    LIBRARY_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}
-    RUNTIME_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}
+    ARCHIVE_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}/
+    LIBRARY_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}/
+    RUNTIME_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}/
   )
   target_include_directories(${ProjectName}
     PUBLIC ${DIMANCHE_ROOT}
