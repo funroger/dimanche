@@ -202,7 +202,6 @@ unique_file_t open(const wchar_t *pwFile,
 #else // !defined(_WINDOWS)
 
     auto fileName = sl_get_file_name_w(pwFile);
-    eResult res;
 
     // check error(s)
     if (!fileName) {
@@ -589,7 +588,7 @@ eResult wait_io(handle hFile, OVRLPD * const pOverlapped,
 
 #else // !defined(_WINDOWS)
 
-    UNUSED(hFile);
+    UNUSED(hFile, pOverlapped, processedBytes);
 
     return eResult::ERR_NOT_SUPPORTED;
 

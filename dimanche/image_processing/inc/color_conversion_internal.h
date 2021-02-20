@@ -113,8 +113,8 @@ public:
     }
 
 private:
-    const int32_t lumaScale, chromaScale;
     const CONSTS consts;
+    const int32_t lumaScale, chromaScale;
 };
 
 } // namespace yuv_to_bgr

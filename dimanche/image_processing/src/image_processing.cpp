@@ -7,6 +7,7 @@ namespace dimanche {
 namespace image_processing {
 
 eResult CheckFormat(const image::FORMAT &format) {
+    UNUSED(format);
 
     return eResult::OK;
 }
