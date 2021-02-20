@@ -4,7 +4,7 @@
 
 #include <atomic>
 #include <memory>
-
+/*
 namespace dimanche {
 namespace image {
 
@@ -95,3 +95,4 @@ void CImage::Release() {
 }
 
 } // namespace dimanche
+*/
