@@ -53,11 +53,11 @@ function(COMPILE_ASM ProjectName OBJ_DIR)
     get_filename_component(ASM_FILE_NAME "${ASM_FILE}" NAME_WLE)
     set(ASM_OBJ ${OBJ_DIR}/${ASM_FILE_NAME}.${OBJ_EXT}) 
     
-    SET(ASM_OBJS ${ASM_OBJS} ${ASM_OBJ})
+    set_source_files_properties(${ASM_FILE} LANGUAGE ASM)
     add_custom_command(OUTPUT ${ASM_OBJ}
       COMMAND ${nasm_cmd_file}
       ARGS ${DIMANCHE_ROOT} ${Platform} ${ASM_FILE} ${OBJ_DIR}
-      DEPENDS ${ASM_FILE}
+      MAIN_DEPENDENCY ${ASM_FILE}
     )
   endforeach()
 
