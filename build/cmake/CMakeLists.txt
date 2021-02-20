@@ -27,20 +27,21 @@ message(STATUS "DIMANCHE root: " ${DIMANCHE_ROOT})
 # specify tools
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-enable_language(ASM_NASM)
-if(CMAKE_ASM_NASM_COMPILER_LOADED)
-  set(CAN_USE_ASSEMBLER TRUE)
-  set(nasm_cmd_file "${DIMANCHE_ROOT}/tools/${HostSystem}")
-else()
-  message(FATAL_ERROR "NASM is required. Please, download the latest NASM and make sure it can be found by CMake")
-endif()
+#enable_language(ASM_NASM)
+#if(CMAKE_ASM_NASM_COMPILER_LOADED)
+#  set(CAN_USE_ASSEMBLER TRUE)
+#else()
+#  message(FATAL_ERROR "NASM is required. Please, download the latest NASM and make sure it can be found by CMake")
+#endif()
 
 
 # cross-platform variables
 if(${HostSystem} STREQUAL "windows")
   set(OBJ_EXT "obj")
+  set(nasm_cmd_file "${DIMANCHE_ROOT}/tools/${HostSystem}/build_asm.cmd")
 else()
   set(OBJ_EXT "o")
+  set(nasm_cmd_file "${DIMANCHE_ROOT}/tools/${HostSystem}/build_asm.sh")
 endif()
 
 
@@ -52,12 +53,12 @@ function(COMPILE_ASM ProjectName OBJ_DIR)
     get_filename_component(ASM_FILE_NAME "${ASM_FILE}" NAME_WLE)
     set(ASM_OBJ ${OBJ_DIR}/${ASM_FILE_NAME}.${OBJ_EXT}) 
     
-#    SET(ASM_OBJS ${ASM_OBJS} ${ASM_OBJ})
-#    add_custom_command(OUTPUT ${ASM_OBJECT}
-#      COMMAND ${nasm_cmd_file}
-#      ARGS ${DIMANCHE_ROOT} ${Platform} ${ASM_FILE} ${OBJ_DIR}
-#      DEPENDS ${ASM_FILE}
-#    ) 
+    SET(ASM_OBJS ${ASM_OBJS} ${ASM_OBJ})
+    add_custom_command(OUTPUT ${ASM_OBJ}
+      COMMAND ${nasm_cmd_file}
+      ARGS ${DIMANCHE_ROOT} ${Platform} ${ASM_FILE} ${OBJ_DIR}
+      DEPENDS ${ASM_FILE}
+    )
   endforeach()
 
 endfunction()
@@ -66,6 +67,7 @@ endfunction()
 function(DECL_TARGET name type)
   message(STATUS "Processing ${name}")
   set(ProjectName di_${name})
+  set(ProjectRoot ${DIMANCHE_ROOT}/dimanche/${name})
   set(INTERMEDIATE_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}/${name})
 
   # set library properties
@@ -81,18 +83,21 @@ function(DECL_TARGET name type)
 
   # parse sources
   if(${Platform} MATCHES "x86.*")
-    file(GLOB_RECURSE ASM_SOURCES "${DIMANCHE_ROOT}/dimanche/${name}/src/**.asm")
+    file(GLOB_RECURSE ASM_SOURCES ${DIMANCHE_ROOT}/dimanche/${name}/src/**.asm)
   elseif(${Platform} MATCHES "arm.*")
     file(GLOB ASM_SOURCES ${DIMANCHE_ROOT}/dimanche/${name}/src/**.arm.asm) 
   endif()
-  file(GLOB C_SOURCES ${DIMANCHE_ROOT}/dimanche/${name}/src/**.c) 
-  file(GLOB CPP_SOURCES ${DIMANCHE_ROOT}/dimanche/${name}/src/**.cpp)
+  file(GLOB C_SOURCES ${ProjectRoot}/src/**.c) 
+  file(GLOB CPP_SOURCES ${ProjectRoot}/src/**.cpp)
+  file(GLOB INTERNAL_HEADERS ${ProjectRoot}/inc/*.h ${ProjectRoot}/inc/*.inc) 
+  file(GLOB PUBLIC_HEADERS ${ProjectRoot}/*.h ${ProjectRoot}/*.inc) 
+  target_sources(${ProjectName}
+    PUBLIC ${ASM_SOURCES} ${C_SOURCES} ${CPP_SOURCES} ${INTERNAL_HEADERS} ${PUBLIC_HEADERS}
+  )
+  source_group(TREE ${ProjectRoot} FILES ${ASM_SOURCES} ${C_SOURCES} ${CPP_SOURCES} ${INTERNAL_HEADERS} ${PUBLIC_HEADERS})
   if(ASM_SOURCES)
     COMPILE_ASM(${ProjectName} ${INTERMEDIATE_DIRECTORY} ${ASM_SOURCES})
   endif()
-  target_sources(${ProjectName}
-    PUBLIC ${C_SOURCES} ${CPP_SOURCES}
-  )
 
   # set dependencies
   foreach(dep ${ARGN})
@@ -100,6 +105,7 @@ function(DECL_TARGET name type)
   endforeach()
 
   unset(INTERMEDIATE_DIRECTORY)
+  unset(ProjectRoot)
   unset(ProjectName)
 endfunction()
 
