@@ -8,8 +8,8 @@ project(dimanche)
 string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} HostSystem)
 string(TOLOWER ${CMAKE_SYSTEM_NAME} System)
 set(Platform ${CMAKE_SYSTEM_PROCESSOR})
-if(${Platform} STREQUAL "AMD64")
-  set(Platform x86_64)
+if((${Platform} STREQUAL "AMD64") OR (${Platform} STREQUAL "x86_64"))
+  set(Platform x64)
 endif()
 if(CMAKE_BUILD_TYPE)
   string(TOLOWER ${CMAKE_BUILD_TYPE} Configuration)
@@ -31,7 +31,7 @@ message(STATUS "DIMANCHE root: " ${DIMANCHE_ROOT})
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 if(MSVC)
-  SET_MSVC_GLOBAL_SETTINGS()
+  SET_MSVC_GLOBAL_SETTINGS(${Configuration})
 else()
   add_compile_options(-Wall -Wextra -pedantic -Werror)
 endif()
@@ -79,29 +79,35 @@ endfunction()
 function(DECL_TARGET name type)
   message(STATUS "Processing ${name}")
   set(ProjectName di_${name})
-  set(ProjectRoot ${DIMANCHE_ROOT}/dimanche/${name}/)
-  set(INTERMEDIATE_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}/${name}/)
-
-  file(MAKE_DIRECTORY ${INTERMEDIATE_DIRECTORY})
+  set(ProjectRoot "${DIMANCHE_ROOT}/dimanche/${name}/")
+  set(BASE_OUTPUT_DIRECTORY "${DIMANCHE_ROOT}/_bin/cmake/${System}/${Platform}")
 
   # set library properties
   add_library(${ProjectName} ${type})
   if(MSVC)
-    SET_MSVC_PROJECT_SETTINGS(${ProjectName})
+    SET_MSVC_PROJECT_SETTINGS(${ProjectName} ${Configuration})
+    # MSVC adds ${Configuration} by itself to the end of OUTPUT_DIRECTORY
+    set(OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}")
+    set(INTERMEDIATE_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${Configuration}/${name}/")
+  else()
+    set(OUTPUT_DIRECTORY "${BASE_OUTPUT_DIRECTORY}/${Configuration}")
+    set(INTERMEDIATE_DIRECTORY "${OUTPUT_DIRECTORY}/${name}/")
   endif()
 
+  file(MAKE_DIRECTORY ${INTERMEDIATE_DIRECTORY})
+
   set_target_properties(${ProjectName} PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}/
-    LIBRARY_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}/
-    RUNTIME_OUTPUT_DIRECTORY ${DIMANCHE_ROOT}/_bin/${System}/cmake/${Platform}/${Configuration}/
+    ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_DIRECTORY}"
+    LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_DIRECTORY}"
+    RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DIRECTORY}"
   )
   target_include_directories(${ProjectName}
     PUBLIC ${DIMANCHE_ROOT}
   )
 
   # parse sources
-  if(${Platform} MATCHES "x86.*")
-    file(GLOB_RECURSE ASM_SOURCES ${DIMANCHE_ROOT}/dimanche/${name}/src/**.asm)
+  if((${Platform} MATCHES "x86.*") OR (${Platform} MATCHES "x64"))
+    file(GLOB_RECURSE ASM_SOURCES ${DIMANCHE_ROOT}/dimanche/${name}/src/**x86.asm)
   elseif(${Platform} MATCHES "arm.*")
     file(GLOB ASM_SOURCES ${DIMANCHE_ROOT}/dimanche/${name}/src/**.arm.asm) 
   endif()
