@@ -21,29 +21,20 @@
   <ItemGroup>
     <ClInclude Include="..\..\dimanche\basic\assert.h" />
     <ClInclude Include="..\..\dimanche\basic\container_type.h" />
-    <ClInclude Include="..\..\dimanche\basic\alloc.h" />
     <ClInclude Include="..\..\dimanche\basic\color_formats.h" />
     <ClInclude Include="..\..\dimanche\basic\image.h" />
-    <ClInclude Include="..\..\dimanche\basic\image_allocator.h" />
     <ClInclude Include="..\..\dimanche\basic\intrinsics.h" />
-    <ClInclude Include="..\..\dimanche\basic\media_sample.h" />
     <ClInclude Include="..\..\dimanche\basic\platform.h" />
     <ClInclude Include="..\..\dimanche\basic\resource.h" />
     <ClInclude Include="..\..\dimanche\basic\result.h" />
     <ClInclude Include="..\..\dimanche\basic\templates.h" />
     <ClInclude Include="..\..\dimanche\basic\types.h" />
-    <ClInclude Include="..\..\dimanche\basic\video_decoder.h" />
-    <ClInclude Include="..\..\dimanche\basic\video_sample.h" />
-    <ClInclude Include="..\..\dimanche\basic\media_source.h" />
     <ClInclude Include="..\..\dimanche\basic\video_stream_info.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\dimanche\basic\src\container_type.cpp" />
-    <ClCompile Include="..\..\dimanche\basic\src\alloc.cpp" />
     <ClCompile Include="..\..\dimanche\basic\src\result.cpp" />
-    <ClCompile Include="..\..\dimanche\basic\src\video_decoder.cpp" />
     <ClCompile Include="..\..\dimanche\basic\src\image.cpp" />
-    <ClCompile Include="..\..\dimanche\basic\src\image_allocator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\dimanche\basic\asm_defs.x86.inc" />
