@@ -13,7 +13,7 @@
 namespace dimanche {
 
 // declare handle type
-typedef struct _handle_t *handle;
+using handle = struct _handle_t *;
 
 template <typename parameter_t>
 class Dimension

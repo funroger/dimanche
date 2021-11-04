@@ -11,6 +11,8 @@
 
 ; set memory model
 default rel
+; set smart align
+%use smartalign
 
 ;
 ; set platform defines

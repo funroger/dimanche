@@ -6,17 +6,15 @@
 #include <memory>
 /*
 namespace dimanche {
-namespace image {
 
-class Allocator;
-
-} // namespace image
-
-class CImage : public Image
+class CImage : public IImage
 {
 public:
     // constructors
     CImage() = default;
+    // destructor
+    virtual
+    ~CImage() = default;
 
     // access data
     virtual
@@ -25,43 +23,33 @@ public:
     // lock image planes, prepare them for using.
     // return value is self object if everything is OK, otherwise nullptr.
     virtual
-    Image * const Lock() override;
+    CLock Lock() override;
 
     // access C-style format
     virtual
     const IMAGE c_image() const override;
 
+private:
     // unlock the image planes, using has been completed
     virtual
     void Unlock() override;
-
-    // release the image
-    virtual
-    void Release() override;
-
-private:
-    // destructor
-    virtual
-    ~CImage() = default;
 
     image::Format m_format;
 
     std::atomic<int32_t> m_locked = 0;
     std::array<image::PLANE, image::MAX_NUM_PLANES> m_planes = {};
-
-    image::Allocator *m_pAllocator = nullptr;
 };
 
 const image::Format & CImage::Format() const {
     return m_format;
 }
 
-Image * const CImage::Lock() {
-    if (image::eColorFormat::NONE == Format().ColorFormat()) {
-        return nullptr;
+CImage::CLock CImage::Lock() {
+    if (eColorFormat::NONE == Format().ColorFormat()) {
+        return {nullptr};
     }
     ++m_locked;
-    return this;
+    return {this};
 }
 
 const IMAGE CImage::c_image() const {
@@ -84,14 +72,10 @@ const IMAGE CImage::c_image() const {
 }
 
 void CImage::Unlock() {
-    if (image::eColorFormat::NONE == Format().ColorFormat()) {
+    if (eColorFormat::NONE == Format().ColorFormat()) {
         return;
     }
     --m_locked;
-}
-
-void CImage::Release() {
-    // return to allocator
 }
 
 } // namespace dimanche

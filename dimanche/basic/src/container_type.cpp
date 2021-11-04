@@ -2,10 +2,11 @@
 #include <dimanche/basic/container_type.h>
 
 namespace dimanche {
+namespace container {
 
-eContainerType GetContainerTypeByPath(std::wstring && path)
+eType GetTypeByPath(std::wstring && path)
 {
-    eContainerType type = eContainerType::UNK;
+    eType type = eType::UNK;
     if (path.empty()) {return type;}
 
     // get the file extension
@@ -16,19 +17,24 @@ eContainerType GetContainerTypeByPath(std::wstring && path)
 
     // analyze the extension
     if (ext == std::wstring(L".avi")) {
-        type = eContainerType::AVI;
-    } else if (ext == std::wstring(L".yuv")) {
-        type = eContainerType::YUV;
+        type = eType::AVI;
+    } else if (ext == std::wstring(L".mov")) {
+        type = eType::MOV;
+    } else if (ext == std::wstring(L".mp4")) {
+        type = eType::MP4;
     } else if (ext == std::wstring(L".y4m")) {
-        type = eContainerType::Y4M;
+        type = eType::Y4M;
+    } else if (ext == std::wstring(L".yuv")) {
+        type = eType::YUV;
     } else if (ext == std::wstring(L".wav")) {
-        type = eContainerType::WAV;
+        type = eType::WAV;
     } else if (ext == std::wstring(L".ivf")) {
-        type = eContainerType::IVF;
+        type = eType::IVF;
     }
 
     return type;
 
-} // eContainerType GetContainerTypeByPath(std::wstring && path)
+} // eType GetTypeByPath(std::wstring && path)
 
+} // namespace container
 } // namespace dimanche

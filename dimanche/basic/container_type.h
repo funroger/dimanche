@@ -9,8 +9,9 @@
 #include <string>
 
 namespace dimanche {
+namespace container {
 
-enum class eContainerType : uint32_t
+enum class eType : uint32_t
 {
     // the container has unrecognized type
     UNK = 0,
@@ -46,8 +47,9 @@ enum class eContainerType : uint32_t
     NUM
 };
 
-eContainerType GetContainerTypeByPath(std::wstring && path);
+eType GetTypeByPath(std::wstring &path);
 
+} // container
 } // namespace dimanche
 
 #endif // !defined(__DIMANCHE_BASIC_CONTAINER_TYPES_H)
